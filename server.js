@@ -3,6 +3,7 @@ require('dotenv').config();
 
 const express = require('express');
 const axios = require('axios');
+const path = require('path');
 const session = require('express-session');
 const querystring = require('querystring');
 const app = express();
@@ -24,7 +25,7 @@ app.use(session({
 }));
 
 // Servir los archivos del frontend desde la carpeta 'public'
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/test', (req, res) => {
     res.send('¡El servidor está respondiendo correctamente!');
