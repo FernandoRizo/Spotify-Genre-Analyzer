@@ -1,0 +1,178 @@
+body {
+    font-family: sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+main {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 1500px; /* Aumentar para más espacio horizontal */
+    width: 90%;
+}
+
+
+.chart-container {
+    position: relative;
+    height: 80vh; /* Aumentar para más altura */
+    width: 100%;
+}
+
+/* Contenedor principal del layout */
+#chart-layout-container {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem; /* Espacio entre la gráfica y la leyenda */
+    margin-top: 2rem;
+}
+
+/*Contenedor de la gráfica */
+#chart-wrapper {
+    flex-grow: 1; /* Hace que la gráfica ocupe todo el espacio disponible */
+}
+
+/*Estilos para la leyenda lateral */
+#legend-container {
+    flex-shrink: 0; /* Evita que la leyenda se encoja */
+    width: 250px; /* Ancho fijo para la leyenda */
+    max-height: 65vh; /* Misma altura que la gráfica */
+    overflow-y: auto; /* Scroll para navegar */
+    text-align: left;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+/*Estilos para cada elemento de la leyenda */
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.legend-item:hover {
+    background-color: #f0f0f0;
+}
+
+.legend-color-box {
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+    flex-shrink: 0;
+    border-radius: 3px;
+}
+
+h1 {
+    color: #1DB954; /* Verde Spotify */
+}
+
+input[type="text"] {
+    width: 80%;
+    padding: 12px;
+    margin: 1rem 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #1DB954;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #1ed760;
+}
+
+.chart-container {
+    margin-top: 2rem;
+    position: relative;
+    height: 40vh;
+    width: 100%;
+}
+/* --- ESTILOS PARA EL MODO OSCURO --- */
+
+/* Transición suave para el cambio de color */
+body, main, #legend-container {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Contenedor para los controles superiores */
+.header-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap; /* Para que se ajuste en pantallas pequeñas */
+}
+
+/* Estilo para el botón de cambio de tema */
+#theme-toggle-btn {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+}
+
+/* Estilos que se aplican cuando el body tiene la clase .dark-mode */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode main {
+    background: #1e1e1e;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode h1 {
+    color: #1DB954; /* Verde de Spotify  */
+}
+
+body.dark-mode #legend-container {
+    background-color: #2c2c2c;
+    border-color: #444;
+}
+
+body.dark-mode .legend-item:hover {
+    background-color: #3a3a3a;
+}
+
+body.dark-mode a {
+    color: #1DB954;
+}
+
+body.dark-mode select {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+body.dark-mode #theme-toggle-btn {
+    background: #2c2c2c;
+    border-color: #444;
+    color: #e0e0e0;
+}

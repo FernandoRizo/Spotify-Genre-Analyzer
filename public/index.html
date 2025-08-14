@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador de Géneros de Spotify</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <main>
+        <h1>Analizador de Géneros para Playlists de Spotify</h1>
+
+        <div id="login-view">
+            <p>Inicia sesión con tu cuenta de Spotify para analizar tus playlists.</p>
+            <a href="/login" class="spotify-button">Iniciar Sesión con Spotify</a>
+        </div>
+
+       <div id="app-view" style="display:none;">
+            <div class="header-controls"> <p>Selecciona una de tus playlists para analizar:</p>
+                <select id="playlist-select"></select>
+                <button id="theme-toggle-btn">🌙</button> 
+                <a href="/logout" class="logout-link">Cerrar Sesión</a>
+            </div>
+    
+            <div id="chart-layout-container">
+                <div id="chart-wrapper">
+                    <div class="chart-container">
+                        <canvas id="genreChart"></canvas>
+                    </div>
+                </div>
+                <div id="legend-container"></div>
+            </div>
+
+            <p id="loadingMessage" style="display:none;">Analizando, por favor espera...</p>
+            
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
