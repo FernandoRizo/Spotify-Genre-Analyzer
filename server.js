@@ -1,8 +1,9 @@
 // No necesitamos dotenv para esta prueba
-// require('dotenv').config(); 
+require('dotenv').config(); 
 
 const express = require('express');
 const axios = require('axios');
+const path = require('path');
 const session = require('express-session');
 const querystring = require('querystring');
 const app = express();
@@ -12,9 +13,14 @@ const PORT = 3000;
 /* Credenciales para que funcione
 Una buena práctica es manejar credenciales a parte como un archivo .env.
 Esto es para fines prácticos*/
-const CLIENT_ID = '';
-const CLIENT_SECRET = '';
-const REDIRECT_URI = 'http://localhost:3000/callback';
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
+
+console.log("--- Variables de Entorno Cargadas en Vercel ---");
+console.log("CLIENT_ID:", CLIENT_ID ? "Cargado correctamente" : "ERROR: NO CARGADO");
+console.log("REDIRECT_URI en Vercel:", REDIRECT_URI);
+console.log("----------------------------------------------");
 
 // --- MIDDLEWARE ---
 app.use(session({
@@ -24,7 +30,7 @@ app.use(session({
 }));
 
 // Servir los archivos del frontend desde la carpeta 'public'
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/test', (req, res) => {
     res.send('¡El servidor está respondiendo correctamente!');
@@ -183,3 +189,5 @@ app.get('/get-genres', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
+
+module.exports = app;
