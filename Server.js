@@ -1,5 +1,5 @@
 // No necesitamos dotenv para esta prueba
-// require('dotenv').config(); 
+require('dotenv').config(); 
 
 const express = require('express');
 const axios = require('axios');
@@ -12,9 +12,9 @@ const PORT = 3000;
 /* Credenciales para que funcione
 Una buena práctica es manejar credenciales a parte como un archivo .env.
 Esto es para fines prácticos*/
-const CLIENT_ID = '';
-const CLIENT_SECRET = '';
-const REDIRECT_URI = 'http://localhost:3000/callback';
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 
 // --- MIDDLEWARE ---
 app.use(session({
