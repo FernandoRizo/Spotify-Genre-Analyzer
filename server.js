@@ -17,6 +17,11 @@ const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 
+console.log("--- Variables de Entorno Cargadas en Vercel ---");
+console.log("CLIENT_ID:", CLIENT_ID ? "Cargado correctamente" : "ERROR: NO CARGADO");
+console.log("REDIRECT_URI en Vercel:", REDIRECT_URI);
+console.log("----------------------------------------------");
+
 // --- MIDDLEWARE ---
 app.use(session({
     secret: 'frase_secreta_para_la_sesion_12345', // Cambia esto si quieres
