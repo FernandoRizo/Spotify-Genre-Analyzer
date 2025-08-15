@@ -176,7 +176,10 @@ app.get('/get-genres', async (req, res) => {
             });
         }
         
-        res.json(genreCounts);
+        res.json({
+            genreCounts: genreCounts,
+            totalTracks: allTracks.length
+        });
 
     } catch (error) {
         console.error("Error al procesar la playlist:", error.response ? error.response.data : error.message);

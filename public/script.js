@@ -1,72 +1,53 @@
 // public/script.js
-document.addEventListener('DOMContentLoaded', async () => {
-    const loginView = document.getElementById('login-view');
-    const appView = document.getElementById('app-view');
-    const playlistSelect = document.getElementById('playlist-select');
-    const loadingMessage = document.getElementById('loadingMessage');
-    const chartContainer = document.querySelector('.chart-container');
-    
-    //Verificar si el usuario ya tiene una sesión activa
-    const sessionResponse = await fetch('/check-session');
-    const sessionData = await sessionResponse.json();
 
-    if (sessionData.loggedIn) {
-        // Si está logueado, mostrar la app y cargar sus playlists
-        loginView.style.display = 'none';
-        appView.style.display = 'block';
-        loadPlaylists();
-    } else {
-        // Si no, mostrar la vista de login
-        loginView.style.display = 'block';
-        appView.style.display = 'none';
-    }
-    
-    // Función para cargar las playlists del usuario en el menú desplegable
-    async function loadPlaylists() {
-        try {
-            const response = await fetch('/get-my-playlists');
-            const playlists = await response.json();
-            
-            playlistSelect.innerHTML = '<option value="">-- Elige una playlist --</option>'; // Opción por defecto
-            playlists.forEach(playlist => {
-                const option = document.createElement('option');
-                option.value = playlist.id;
-                option.textContent = playlist.name;
-                playlistSelect.appendChild(option);
-            });
-        } catch (error) {
-            alert('Error al cargar tus playlists.');
-        }
+playlistSelect.addEventListener('change', async () => {
+    const playlistId = playlistSelect.value;
+    const chartLayout = document.getElementById('chart-layout-container');
+    const trackCountDisplay = document.getElementById('track-count-display'); // Obtenemos el nuevo párrafo
+
+    // Limpiamos los resultados anteriores
+    trackCountDisplay.textContent = '';
+    if (myChart) myChart.destroy();
+
+    if (!playlistId) {
+        chartLayout.style.display = 'none';
+        return;
     }
 
-    // Evento que se dispara al seleccionar una playlist
-    playlistSelect.addEventListener('change', async () => {
-        const playlistId = playlistSelect.value;
-        if (!playlistId) {
-            chartContainer.style.display = 'none';
-            return;
-        }
+    loadingMessage.style.display = 'block';
+    chartLayout.style.display = 'none';
 
-        loadingMessage.style.display = 'block';
-        chartContainer.style.display = 'none';
+    try {
+        const response = await fetch(`/get-genres?id=${playlistId}`);
+        // La respuesta ahora es un objeto que contiene 'genreCounts' y 'totalTracks'
+        const analysisData = await response.json();
 
-        try {
-            const response = await fetch(`/get-genres?id=${playlistId}`);
-            const genreData = await response.json();
+        if (!response.ok) throw new Error(analysisData.error || 'Error desconocido');
 
-            if (!response.ok) throw new Error(genreData.error || 'Error desconocido');
+        // Extraemos los datos del objeto de respuesta
+        const genreData = analysisData.genreCounts;
+        const totalTracks = analysisData.totalTracks;
 
-            loadingMessage.style.display = 'none';
-            chartContainer.style.display = 'block';
-            
-            const labels = Object.keys(genreData);
-            const data = Object.values(genreData);
+        // Mostramos el número de canciones en la página
+        trackCountDisplay.textContent = `Análisis basado en ${totalTracks} canciones.`;
+
+        loadingMessage.style.display = 'none';
+        chartLayout.style.display = 'flex'; // Usamos 'flex' como en el CSS
+        
+        const labels = Object.keys(genreData);
+        const data = Object.values(genreData);
+
+        if (labels.length > 0) {
             renderChart(labels, data);
-        } catch (error) {
-            loadingMessage.style.display = 'none';
-            alert(`Error al analizar la playlist: ${error.message}`);
+        } else {
+            // Manejar caso sin géneros
+            trackCountDisplay.textContent += ' No se encontraron géneros para analizar.';
         }
-    });
+
+    } catch (error) {
+        loadingMessage.style.display = 'none';
+        trackCountDisplay.textContent = `Error al analizar la playlist: ${error.message}`;
+    }
 });
 
 let myChart; // Variable para la instancia del gráfico
