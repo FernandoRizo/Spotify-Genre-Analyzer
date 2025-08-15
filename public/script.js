@@ -1,11 +1,73 @@
 // public/script.js
 
-playlistSelect.addEventListener('change', async () => {
-    const playlistId = playlistSelect.value;
-    const chartLayout = document.getElementById('chart-layout-container');
-    const trackCountDisplay = document.getElementById('track-count-display'); // Obtenemos el nuevo párrafo
+// 1. TODO EL CÓDIGO SE ENVUELVE AQUÍ
+// Esto asegura que el script se ejecute solo cuando la página esté completamente cargada.
+document.addEventListener('DOMContentLoaded', async () => {
 
-    // Limpiamos los resultados anteriores
+    // Referencias a las vistas principales
+    const loginView = document.getElementById('login-view');
+    const appView = document.getElementById('app-view');
+
+    // 2. PRIMERO VERIFICAMOS LA SESIÓN, antes de hacer cualquier otra cosa
+    const sessionResponse = await fetch('/check-session');
+    const sessionData = await sessionResponse.json();
+
+    if (sessionData.loggedIn) {
+        // 3. SOLO SI ESTÁ LOGUEADO, mostramos la app y buscamos sus elementos internos
+        loginView.style.display = 'none';
+        appView.style.display = 'block';
+
+        // Ahora es seguro buscar estos elementos porque su contenedor (appView) está visible
+        const playlistSelect = document.getElementById('playlist-select');
+        const themeToggleButton = document.getElementById('theme-toggle-btn');
+        const trackCountDisplay = document.getElementById('track-count-display');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const chartLayout = document.getElementById('chart-layout-container');
+
+        // Lógica para cargar las playlists
+        loadPlaylists(playlistSelect);
+
+        // Lógica para el cambio de playlist
+        playlistSelect.addEventListener('change', () => {
+            handlePlaylistChange(playlistSelect, chartLayout, trackCountDisplay, loadingMessage);
+        });
+
+        // Lógica para el botón de tema (claro/oscuro)
+        setupThemeToggle(themeToggleButton);
+
+    } else {
+        // Si no está logueado, solo mostramos la vista de login
+        loginView.style.display = 'block';
+        appView.style.display = 'none';
+    }
+});
+
+
+// --- DEFINICIÓN DE FUNCIONES ---
+// (He movido la lógica a funciones más pequeñas para que sea más fácil de leer)
+
+let myChart; // Variable global para la instancia del gráfico
+
+async function loadPlaylists(playlistSelectElement) {
+    try {
+        const response = await fetch('/get-my-playlists');
+        const playlists = await response.json();
+        
+        playlistSelectElement.innerHTML = '<option value="">-- Elige una playlist --</option>';
+        playlists.forEach(playlist => {
+            const option = document.createElement('option');
+            option.value = playlist.id;
+            option.textContent = playlist.name;
+            playlistSelectElement.appendChild(option);
+        });
+    } catch (error) {
+        alert('Error al cargar tus playlists.');
+    }
+}
+
+async function handlePlaylistChange(playlistSelectElement, chartLayout, trackCountDisplay, loadingMessage) {
+    const playlistId = playlistSelectElement.value;
+    
     trackCountDisplay.textContent = '';
     if (myChart) myChart.destroy();
 
@@ -19,20 +81,16 @@ playlistSelect.addEventListener('change', async () => {
 
     try {
         const response = await fetch(`/get-genres?id=${playlistId}`);
-        // La respuesta ahora es un objeto que contiene 'genreCounts' y 'totalTracks'
         const analysisData = await response.json();
 
         if (!response.ok) throw new Error(analysisData.error || 'Error desconocido');
 
-        // Extraemos los datos del objeto de respuesta
         const genreData = analysisData.genreCounts;
         const totalTracks = analysisData.totalTracks;
 
-        // Mostramos el número de canciones en la página
         trackCountDisplay.textContent = `Análisis basado en ${totalTracks} canciones.`;
-
         loadingMessage.style.display = 'none';
-        chartLayout.style.display = 'flex'; // Usamos 'flex' como en el CSS
+        chartLayout.style.display = 'flex';
         
         const labels = Object.keys(genreData);
         const data = Object.values(genreData);
@@ -40,51 +98,42 @@ playlistSelect.addEventListener('change', async () => {
         if (labels.length > 0) {
             renderChart(labels, data);
         } else {
-            // Manejar caso sin géneros
             trackCountDisplay.textContent += ' No se encontraron géneros para analizar.';
         }
-
     } catch (error) {
         loadingMessage.style.display = 'none';
         trackCountDisplay.textContent = `Error al analizar la playlist: ${error.message}`;
     }
-});
-
-let myChart; // Variable para la instancia del gráfico
-
-// --- LÓGICA PARA EL CAMBIO DE TEMA ---
-
-const themeToggleButton = document.getElementById('theme-toggle-btn');
-
-// Aplicar el tema guardado al cargar la página
-if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark-mode');
-    themeToggleButton.innerHTML = '☀️';
-} else {
-    themeToggleButton.innerHTML = '🌙';
 }
 
-// Evento de clic para el botón
-themeToggleButton.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-
-    // Guardar la preferencia del usuario y cambiar el ícono
-    if (document.body.classList.contains('dark-mode')) {
-        localStorage.setItem('theme', 'dark');
+function setupThemeToggle(themeToggleButton) {
+    // Aplicar el tema guardado al cargar la página
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
         themeToggleButton.innerHTML = '☀️';
     } else {
-        localStorage.setItem('theme', 'light');
         themeToggleButton.innerHTML = '🌙';
     }
 
-    //Si hay una gráfica visible, volver a dibujarla con los colores del nuevo tema
-    if (myChart) {
-        // Obtenemos los datos actuales antes de destruir la gráfica
-        const labels = myChart.data.labels;
-        const data = myChart.data.datasets[0].data;
-        renderChart(labels, data); // Volvemos a llamar a renderChart
-    }
-});
+    // Evento de clic para el botón
+    themeToggleButton.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+
+        if (document.body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+            themeToggleButton.innerHTML = '☀️';
+        } else {
+            localStorage.setItem('theme', 'light');
+            themeToggleButton.innerHTML = '🌙';
+        }
+
+        if (myChart) {
+            const labels = myChart.data.labels;
+            const data = myChart.data.datasets[0].data;
+            renderChart(labels, data);
+        }
+    });
+}
 
 function renderChart(labels, data) {
     const ctx = document.getElementById('genreChart').getContext('2d');
@@ -92,7 +141,6 @@ function renderChart(labels, data) {
         myChart.destroy();
     }
     
-    // Determinamos el color del texto basado en el tema actual
     const isDarkMode = document.body.classList.contains('dark-mode');
     const textColor = isDarkMode ? '#e0e0e0' : '#333';
 
@@ -117,7 +165,7 @@ function renderChart(labels, data) {
                 title: {
                     display: true,
                     text: 'Géneros Musicales en la Playlist',
-                    color: textColor // Aplicamos el color al título
+                    color: textColor
                 }
             }
         }
@@ -135,10 +183,6 @@ function generateRandomColors(count) {
     return colors;
 }
 
-/**
-
- * @param {Chart} chart - La instancia del gráfico de Chart.js
- */
 function generateHtmlLegend(chart) {
     const legendContainer = document.getElementById('legend-container');
     legendContainer.innerHTML = ''; 
@@ -154,13 +198,10 @@ function generateHtmlLegend(chart) {
     legendItems.forEach(item => {
         const div = document.createElement('div');
         div.classList.add('legend-item');
-
         const colorBox = document.createElement('span');
         colorBox.classList.add('legend-color-box');
         colorBox.style.backgroundColor = item.fillStyle;
-
         const text = document.createTextNode(item.text);
-
         div.appendChild(colorBox);
         div.appendChild(text);
         legendContainer.appendChild(div);
