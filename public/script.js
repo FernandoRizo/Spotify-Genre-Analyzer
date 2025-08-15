@@ -48,16 +48,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 let myChart; // Variable global para la instancia del gráfico
 
-async function loadPlaylists(playlistSelectElement) {
+async function loadPlaylists(url, playlistSelectElement) {
     try {
-        const response = await fetch('/get-my-playlists');
+        const response = await fetch(url);
         const playlists = await response.json();
         
         playlistSelectElement.innerHTML = '<option value="">-- Elige una playlist --</option>';
+
+        // Añadimos la opción de "Me gusta" solo si es Spotify
+        if (url.includes('spotify')) {
+            const likedOption = document.createElement('option');
+            likedOption.value = 'liked';
+            likedOption.textContent = '❤️ Canciones que te gustan';
+            playlistSelectElement.appendChild(likedOption);
+        }
+
         playlists.forEach(playlist => {
             const option = document.createElement('option');
             option.value = playlist.id;
-            option.textContent = playlist.name;
+            // La API de YouTube guarda el título en 'snippet.title'
+            option.textContent = playlist.name || playlist.snippet.title; 
             playlistSelectElement.appendChild(option);
         });
     } catch (error) {
@@ -105,6 +115,60 @@ async function handlePlaylistChange(playlistSelectElement, chartLayout, trackCou
         trackCountDisplay.textContent = `Error al analizar la playlist: ${error.message}`;
     }
 }
+
+async function handleYouTubePlaylistChange(playlistSelectElement) {
+    const playlistId = playlistSelectElement.value;
+    const chartLayout = document.getElementById('chart-layout-container');
+    const trackCountDisplay = document.getElementById('track-count-display');
+    const loadingMessage = document.getElementById('loadingMessage');
+    
+    trackCountDisplay.textContent = '';
+    if (myChart) myChart.destroy();
+
+    if (!playlistId) {
+        chartLayout.style.display = 'none';
+        return;
+    }
+
+    loadingMessage.textContent = 'Obteniendo canciones de YouTube...';
+    loadingMessage.style.display = 'block';
+    chartLayout.style.display = 'none';
+
+    try {
+        // 1. Pedimos la lista de canciones a nuestro servidor
+        const itemsResponse = await fetch(`/get-youtube-playlist-items?id=${playlistId}`);
+        const tracks = await itemsResponse.json();
+
+        trackCountDisplay.textContent = `Se encontraron ${tracks.length} canciones. Analizando géneros con Spotify...`;
+        loadingMessage.textContent = 'Analizando géneros... (esto puede tardar)';
+
+        // 2. Enviamos esa lista a nuestro servidor para que la analice
+        const analysisResponse = await fetch('/analyze-youtube-playlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tracks: tracks })
+        });
+        const analysisData = await analysisResponse.json();
+
+        // 3. Mostramos los resultados
+        trackCountDisplay.textContent = `Análisis basado en ${analysisData.totalTracks} canciones encontradas.`;
+        loadingMessage.style.display = 'none';
+        chartLayout.style.display = 'flex';
+        
+        const labels = Object.keys(analysisData.genreCounts);
+        const data = Object.values(analysisData.genreCounts);
+
+        if (labels.length > 0) {
+            renderChart(labels, data);
+        } else {
+            trackCountDisplay.textContent += ' No se encontraron géneros para analizar.';
+        }
+    } catch (error) {
+        loadingMessage.style.display = 'none';
+        trackCountDisplay.textContent = `Error al analizar la playlist: ${error.message}`;
+    }
+}
+
 
 function setupThemeToggle(themeToggleButton) {
     // Aplicar el tema guardado al cargar la página

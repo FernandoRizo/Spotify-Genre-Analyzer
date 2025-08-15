@@ -176,3 +176,26 @@ body.dark-mode #theme-toggle-btn {
     border-color: #444;
     color: #e0e0e0;
 }
+
+.login-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.youtube-button {
+    background-color: #FF0000; /* Rojo de YouTube */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.youtube-button:hover {
+    background-color: #c40202;
+}
