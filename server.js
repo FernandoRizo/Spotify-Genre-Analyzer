@@ -177,14 +177,15 @@ app.get('/get-youtube-playlist-items', async (req, res) => {
 app.post('/analyze-youtube-playlist', async (req, res) => {
     const { tracks } = req.body;
     try {
-        const spotifyToken = await spotifyService.getAppSpotifyToken();
+        // Ahora le pasamos las credenciales a la función
+        const spotifyToken = await spotifyService.getAppSpotifyToken(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET);
+
         const analysisResults = await spotifyService.analyzeTracks(spotifyToken, tracks);
         res.json(analysisResults);
-    }catch (error) {
-    // AÑADIMOS ESTE CONSOLE.LOG PARA VER EL ERROR REAL
-    console.error("Error detallado al analizar playlist de YouTube:", error.response ? error.response.data : error);
-    res.status(500).json({ error: 'Error al analizar la playlist con Spotify' });
-}
+    } catch (error) {
+        console.error("Error detallado al analizar playlist de YouTube:", error.response ? error.response.data : error);
+        res.status(500).json({ error: 'Error al analizar la playlist con Spotify' });
+    }
 });
 
 app.get('/get-genres', async (req, res) => {

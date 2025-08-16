@@ -74,12 +74,9 @@ const getPlaylistGenres = async (accessToken, playlistId) => {
     };
 };
 
-// --- ESTA ES LA POSICIÓN CORRECTA PARA ESTAS FUNCIONES ---
 
-const getAppSpotifyToken = async () => {
-    const clientId = process.env.SPOTIFY_CLIENT_ID;
-    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-
+const getAppSpotifyToken = async (clientId, clientSecret) => {
+    
     const response = await axios({
         method: 'post',
         url: 'https://accounts.spotify.com/api/token',
