@@ -14,11 +14,13 @@ const getPlaylists = async (accessToken) => {
     return response.data.items;
 };
 
+// NUEVA FUNCIÓN para obtener las canciones de una playlist
 const getPlaylistItems = async (accessToken, playlistId) => {
     const url = 'https://www.googleapis.com/youtube/v3/playlistItems';
     let allTracks = [];
     let nextPageToken = undefined;
 
+    // Bucle para obtener todas las "páginas" de resultados
     do {
         const response = await axios.get(url, {
             headers: { 'Authorization': `Bearer ${accessToken}` },
@@ -33,12 +35,14 @@ const getPlaylistItems = async (accessToken, playlistId) => {
         nextPageToken = response.data.nextPageToken;
     } while (nextPageToken);
 
+    // Mapeamos la respuesta a un formato más simple
     return allTracks.map(item => ({
         title: item.snippet.title,
         artist: item.snippet.videoOwnerChannelTitle
     }));
 };
+
 module.exports = {
     getPlaylists,
-    getPlaylistItems
+    getPlaylistItems 
 };

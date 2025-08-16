@@ -160,6 +160,20 @@ app.get('/get-my-youtube-playlists', async (req, res) => {
     }
 });
 
+app.get('/get-youtube-playlist-items', async (req, res) => {
+    if (!req.session.youtubeAccessToken) {
+        return res.status(401).json({ error: 'No autenticado con YouTube' });
+    }
+    try {
+        const playlistId = req.query.id;
+        const tracks = await youtubeService.getPlaylistItems(req.session.youtubeAccessToken, playlistId);
+        res.json(tracks);
+    } catch (error) {
+        console.error("Error al obtener items de playlist de YouTube:", error.response ? error.response.data : error.message);
+        res.status(500).json({ error: 'Error al obtener las canciones de la playlist' });
+    }
+});
+
 app.post('/analyze-youtube-playlist', async (req, res) => {
     const { tracks } = req.body;
     try {
