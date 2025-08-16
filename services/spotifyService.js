@@ -95,7 +95,7 @@ const analyzeTracks = async (spotifyToken, tracks) => {
     for (const track of tracks) {
         try {
             const query = `track:${track.title} artist:${track.artist}`;
-            const searchResponse = await axios.get('open.spotify.com/artist', {
+            const searchResponse = await axios.get('https://api.spotify.com/v1/search', {
                 headers: { 'Authorization': `Bearer ${spotifyToken}` },
                 params: { q: query, type: 'track', limit: 1 }
             });
