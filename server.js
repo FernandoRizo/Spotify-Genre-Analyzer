@@ -167,8 +167,10 @@ app.get('/get-youtube-playlist-items', async (req, res) => {
         const tracks = await youtubeService.getPlaylistItems(req.session.youtubeAccessToken, req.query.id);
         res.json(tracks);
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener canciones de la playlist de YouTube' });
-    }
+    // AÑADIMOS ESTE CONSOLE.LOG DETALLADO
+    console.error("Error detallado de la API de YouTube:", error.response ? error.response.data : error.message);
+    res.status(500).json({ error: 'Error al obtener playlists de YouTube' });
+}
 });
 
 // Ruta para analizar las canciones de YouTube usando la API de Spotify
