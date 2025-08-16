@@ -14,14 +14,29 @@ const app = express();
 const PORT = 3000;
 
 // --- VARIABLES DE ENTORNO ---
-// SPOTIFY
-const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
-//YOUTUBE
-const YOUTUBE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID;
-const YOUTUBE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET;
-const YOUTUBE_REDIRECT_URI = process.env.YOUTUBE_REDIRECT_URI;
+let SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI;
+let YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_REDIRECT_URI;
+
+if (process.env.NODE_ENV === 'production') {
+    SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+    SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+    SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
+    
+    YOUTUBE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID;
+    YOUTUBE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET;
+    YOUTUBE_REDIRECT_URI = process.env.YOUTUBE_REDIRECT_URI;
+} else {
+    
+    const credentials = require('./credentials.json');
+    
+    SPOTIFY_CLIENT_ID = credentials.spotify.clientId;
+    SPOTIFY_CLIENT_SECRET = credentials.spotify.clientSecret;
+    SPOTIFY_REDIRECT_URI = credentials.spotify.redirectUri;
+
+    YOUTUBE_CLIENT_ID = credentials.youtube.clientId;
+    YOUTUBE_CLIENT_SECRET = credentials.youtube.clientSecret;
+    YOUTUBE_REDIRECT_URI = credentials.youtube.redirectUri;
+}
 
 // --- MIDDLEWARE ---
 app.use(session({
