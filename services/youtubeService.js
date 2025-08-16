@@ -38,7 +38,7 @@ const getPlaylistItems = async (accessToken, playlistId) => {
     // Mapeamos la respuesta a un formato más simple
     return allTracks.map(item => ({
         title: item.snippet.title,
-        artist: item.snippet.videoOwnerChannelTitle
+        artist: item.snippet.videoOwnerChannelTitle.replace(' - Topic', '')
     }));
 };
 
