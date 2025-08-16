@@ -35,7 +35,82 @@ document.addEventListener('DOMContentLoaded', async () => {
         loginView.style.display = 'block';
         appView.style.display = 'none';
     }
+    const modal = document.getElementById('feedback-modal');
+    const openBtn = document.getElementById('open-feedback-btn');
+    const closeBtn = document.querySelector('.close-btn');
+    const commentForm = document.getElementById('comment-form');
+
+    // Función para cargar los comentarios desde el servidor
+    const loadComments = async () => {
+        const commentsList = document.getElementById('comments-list');
+        try {
+            const response = await fetch('/api/comments');
+            const comments = await response.json();
+            commentsList.innerHTML = ''; // Limpiar lista
+            comments.forEach(comment => {
+                const div = document.createElement('div');
+                div.classList.add('comment-item');
+                div.innerHTML = `<strong>${escapeHTML(comment.author || 'Anónimo')}</strong><p>${escapeHTML(comment.text)}</p>`;
+                commentsList.appendChild(div);
+            });
+        } catch (error) {
+            commentsList.innerHTML = 'No se pudieron cargar los comentarios.';
+        }
+    };
+
+    // Abrir el modal
+    openBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.classList.add('visible');
+        loadComments();
 });
+
+
+// Cerrar el modal
+    closeBtn.addEventListener('click', () => modal.classList.remove('visible'));
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) { // Si se hace clic en el fondo oscuro
+            modal.classList.remove('visible');
+        }
+    });
+
+    // Enviar un nuevo comentario
+    commentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const authorInput = document.getElementById('author-input');
+        const textInput = document.getElementById('text-input');
+
+        const newComment = {
+            author: authorInput.value || 'Anónimo',
+            text: textInput.value
+        };
+
+        try {
+            await fetch('/api/comments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newComment)
+            });
+            authorInput.value = '';
+            textInput.value = '';
+            loadComments(); // Recargar comentarios
+        } catch (error) {
+            alert('Error al enviar el comentario.');
+        }
+    });
+});
+
+// Función de seguridad para evitar inyección de HTML
+function escapeHTML(str) {
+    return str.replace(/[&<>'"]/g, 
+      tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag));
+}
 
 
 // --- DEFINICIÓN DE FUNCIONES ---

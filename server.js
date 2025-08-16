@@ -1,13 +1,15 @@
 require('dotenv').config();
-
+// ----------- IMPORTS ---------------------------------------
 const express = require('express');
+const mongoose = require('mongoose');
 const axios = require('axios');
 const path = require('path');
+const Comment = require('./models/comment.js'); 
 const session = require('express-session');
 const querystring = require('querystring');
-
 const spotifyService = require('./services/spotifyService.js');
 const youtubeService = require('./services/youtubeService.js');
+// -------------------------------------------------------------
 
 const app = express();
 const PORT = 3000;
@@ -34,6 +36,36 @@ if (process.env.NODE_ENV === 'production') {
     YOUTUBE_CLIENT_SECRET = credentials.youtube.clientSecret;
     YOUTUBE_REDIRECT_URI = credentials.youtube.redirectUri;
 }
+//----Conectar con Mongo -----
+const dbUrl = process.env.NODE_ENV === 'production' 
+    ? process.env.DATABASE_URL 
+    : require('./credentials.json').database.connectionString;
+
+mongoose.connect(dbUrl)
+    .then(() => console.log("Conectado a MongoDB Atlas exitosamente."))
+    .catch(err => console.error("Error al conectar a MongoDB:", err));
+
+app.get('/api/comments', async (req, res) => {
+    try {
+        const comments = await Comment.find().sort({ createdAt: -1 });
+        res.json(comments);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener comentarios' });
+    }
+});
+
+app.post('/api/comments', async (req, res) => {
+    try {
+        const newComment = new Comment({
+            author: req.body.author,
+            text: req.body.text
+        });
+        await newComment.save();
+        res.status(201).json(newComment);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al guardar el comentario' });
+    }
+});
 
 //--Middleware--
 app.use(session({

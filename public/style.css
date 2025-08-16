@@ -212,3 +212,114 @@ body.dark-mode #theme-toggle-btn {
     gap: 1rem;
     margin-top: 1rem;
 }
+
+.feedback-link {
+    display: block;
+    margin-top: 2rem;
+    color: #555;
+    text-decoration: underline;
+    cursor: pointer;
+}
+body.dark-mode .feedback-link {
+    color: #aaa;
+}
+
+/* El fondo oscuro semitransparente */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none; /* Oculto por defecto */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Clase para mostrar el modal */
+.modal-overlay.visible {
+    display: flex;
+}
+
+/* El contenido de la ventana modal */
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+body.dark-mode .modal-content {
+    background: #2c2c2c;
+}
+
+/* Botón para cerrar */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #888;
+}
+body.dark-mode .close-btn {
+    color: #aaa;
+}
+
+/* Lista de comentarios */
+#comments-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+body.dark-mode #comments-list {
+    border-color: #444;
+}
+
+.comment-item {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+body.dark-mode .comment-item {
+    border-bottom-color: #3a3a3a;
+}
+.comment-item strong {
+    color: #1DB954;
+}
+.comment-item p {
+    margin: 5px 0 0;
+}
+
+/* Estilos del formulario */
+#comment-form input, #comment-form textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+body.dark-mode #comment-form input, body.dark-mode #comment-form textarea {
+    background-color: #3a3a3a;
+    border-color: #555;
+    color: #eee;
+}
+
+#comment-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+#comment-form button {
+    width: 100%;
+    padding: 12px;
+}
