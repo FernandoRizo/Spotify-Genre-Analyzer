@@ -103,12 +103,7 @@ button:hover {
     background-color: #1ed760;
 }
 
-.chart-container {
-    margin-top: 2rem;
-    position: relative;
-    height: 40vh;
-    width: 100%;
-}
+
 /* --- ESTILOS PARA EL MODO OSCURO --- */
 
 /* Transición suave para el cambio de color */
