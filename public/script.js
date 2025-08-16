@@ -113,6 +113,8 @@ async function handleSpotifyPlaylistChange() {
     }
 }
 
+// public/script.js
+
 async function handleYouTubePlaylistChange() {
     const playlistSelect = document.getElementById('playlist-select');
     const playlistId = playlistSelect.value;
@@ -133,20 +135,30 @@ async function handleYouTubePlaylistChange() {
     chartLayout.style.display = 'none';
 
     try {
-        // 1. Pedimos la lista de canciones a nuestro servidor
+        // 1. Pedimos la lista de canciones a nuestro servidor (GET)
         const itemsResponse = await fetch(`/get-youtube-playlist-items?id=${playlistId}`);
+        if (!itemsResponse.ok) throw new Error('No se pudieron obtener las canciones de la playlist.');
         const tracks = await itemsResponse.json();
 
         trackCountDisplay.textContent = `Se encontraron ${tracks.length} canciones. Analizando géneros con Spotify...`;
         loadingMessage.textContent = 'Analizando géneros... (esto puede tardar)';
 
-        // 2. Enviamos esa lista a nuestro servidor para que la analice
+        // 2. Enviamos esa lista a nuestro servidor para que la analice (POST)
+        // ESTA ES LA PARTE IMPORTANTE A VERIFICAR
         const analysisResponse = await fetch('/analyze-youtube-playlist', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ tracks: tracks })
         });
+        
         const analysisData = await analysisResponse.json();
+
+        // Verificamos si la respuesta del análisis fue un error
+        if (!analysisResponse.ok) {
+            throw new Error(analysisData.error || 'Error desconocido del servidor');
+        }
 
         // 3. Mostramos los resultados
         trackCountDisplay.textContent = `Análisis basado en ${analysisData.totalTracks} canciones encontradas.`;
