@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Si el usuario ya inició sesión
         loginView.style.display = 'none';
         appView.style.display = 'block';
-
+        updateUIText(sessionData.service); // Actualizamos el texto de la UI
         const playlistSelect = document.getElementById('playlist-select');
         const themeToggleButton = document.getElementById('theme-toggle-btn');
         
@@ -179,6 +179,27 @@ async function handleYouTubePlaylistChange() {
     }
 }
 
+/**
+ * Actualiza los textos de la UI según el servicio con el que se inició sesión.
+ * @param {string} service - El nombre del servicio 
+ */
+function updateUIText(service) {
+    const mainTitle = document.getElementById('main-title');
+    const selectLabel = document.getElementById('select-label');
+    const chartTitle = myChart ? myChart.options.plugins.title : null;
+
+    if (service === 'spotify') {
+        mainTitle.textContent = 'Analizador de Géneros para Playlists de Spotify';
+        selectLabel.textContent = 'Selecciona una de tus playlists de Spotify para analizar:';
+        if (chartTitle) chartTitle.text = 'Géneros Musicales en la Playlist de Spotify';
+    } else if (service === 'youtube') {
+        mainTitle.textContent = 'Analizador de Géneros para Playlists de YouTube';
+        selectLabel.textContent = 'Selecciona una de tus playlists de YouTube para analizar:';
+        if (chartTitle) chartTitle.text = 'Géneros Musicales en la Playlist de YouTube';
+    }
+
+    if (myChart) myChart.update(); // Actualiza la gráfica si ya existe
+}
 
 function setupThemeToggle(themeToggleButton) {
     // Aplicar el tema guardado al cargar la página
@@ -214,7 +235,9 @@ function renderChart(labels, data) {
     if (myChart) {
         myChart.destroy();
     }
-    
+     
+    const serviceName = document.getElementById('main-title').textContent.includes('Spotify') ? 'Spotify' : 'YouTube';
+    const chartTitleText = `Géneros Musicales en la Playlist de ${serviceName}`;
     const isDarkMode = document.body.classList.contains('dark-mode');
     const textColor = isDarkMode ? '#e0e0e0' : '#333';
 
@@ -238,7 +261,7 @@ function renderChart(labels, data) {
                 },
                 title: {
                     display: true,
-                    text: 'Géneros Musicales en la Playlist',
+                    text: chartTitleText,
                     color: textColor
                 }
             }

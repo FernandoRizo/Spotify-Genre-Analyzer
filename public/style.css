@@ -177,25 +177,43 @@ body.dark-mode #theme-toggle-btn {
     color: #e0e0e0;
 }
 
-.login-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1rem;
-}
 
-.youtube-button {
-    background-color: #FF0000; /* Rojo de YouTube */
+
+/* Estilo base para AMBOS botones */
+.login-button {
     color: white;
     padding: 12px 20px;
     border: none;
     border-radius: 25px;
     font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
     text-decoration: none;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.2s;
 }
 
-.youtube-button:hover {
+.login-button:hover {
+    transform: scale(1.05); /* Un pequeño efecto al pasar el ratón */
+}
+
+/* Color específico para cada botón */
+.login-button.spotify {
+    background-color: #1DB954; /* Verde Spotify */
+}
+.login-button.spotify:hover {
+    background-color: #1ed760;
+}
+
+.login-button.youtube {
+    background-color: #FF0000; /* Rojo de YouTube */
+}
+.login-button.youtube:hover {
     background-color: #c40202;
+}
+
+.login-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
 }
