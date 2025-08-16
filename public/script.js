@@ -3,40 +3,35 @@
 // 1. TODO EL CÓDIGO SE ENVUELVE AQUÍ
 // Esto asegura que el script se ejecute solo cuando la página esté completamente cargada.
 document.addEventListener('DOMContentLoaded', async () => {
-
-    // Referencias a las vistas principales
     const loginView = document.getElementById('login-view');
     const appView = document.getElementById('app-view');
 
-    // 2. PRIMERO VERIFICAMOS LA SESIÓN, antes de hacer cualquier otra cosa
     const sessionResponse = await fetch('/check-session');
     const sessionData = await sessionResponse.json();
 
     if (sessionData.loggedIn) {
-        // 3. SOLO SI ESTÁ LOGUEADO, mostramos la app y buscamos sus elementos internos
+        // Si el usuario ya inició sesión
         loginView.style.display = 'none';
         appView.style.display = 'block';
 
-        // Ahora es seguro buscar estos elementos porque su contenedor (appView) está visible
         const playlistSelect = document.getElementById('playlist-select');
         const themeToggleButton = document.getElementById('theme-toggle-btn');
-        const trackCountDisplay = document.getElementById('track-count-display');
-        const loadingMessage = document.getElementById('loadingMessage');
-        const chartLayout = document.getElementById('chart-layout-container');
+        
+        setupThemeToggle(themeToggleButton); // Configura el botón del tema
 
-        // Lógica para cargar las playlists
-        loadPlaylists(playlistSelect);
-
-        // Lógica para el cambio de playlist
-        playlistSelect.addEventListener('change', () => {
-            handlePlaylistChange(playlistSelect, chartLayout, trackCountDisplay, loadingMessage);
-        });
-
-        // Lógica para el botón de tema (claro/oscuro)
-        setupThemeToggle(themeToggleButton);
+        // Decide qué playlists cargar según el servicio
+        if (sessionData.service === 'spotify') {
+            loadPlaylists('/get-my-playlists', playlistSelect, 'spotify');
+            // Cuando el usuario elija una playlist, analiza los géneros
+            playlistSelect.addEventListener('change', handleSpotifyPlaylistChange);
+        } else if (sessionData.service === 'youtube') {
+            loadPlaylists('/get-my-youtube-playlists', playlistSelect, 'youtube');
+            // Cuando el usuario elija una playlist, busca las canciones
+            playlistSelect.addEventListener('change', handleYouTubePlaylistChange);
+        }
 
     } else {
-        // Si no está logueado, solo mostramos la vista de login
+        // Si el usuario no ha iniciado sesión
         loginView.style.display = 'block';
         appView.style.display = 'none';
     }
@@ -46,17 +41,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 // --- DEFINICIÓN DE FUNCIONES ---
 // (He movido la lógica a funciones más pequeñas para que sea más fácil de leer)
 
-let myChart; // Variable global para la instancia del gráfico
+let myChart; // Variable para la instancia del gráfico
 
-async function loadPlaylists(url, playlistSelectElement) {
+// Función genérica para cargar las listas de reproducción
+async function loadPlaylists(url, playlistSelectElement, service) {
     try {
         const response = await fetch(url);
         const playlists = await response.json();
         
         playlistSelectElement.innerHTML = '<option value="">-- Elige una playlist --</option>';
 
-        // Añadimos la opción de "Me gusta" solo si es Spotify
-        if (url.includes('spotify')) {
+        if (service === 'spotify') {
             const likedOption = document.createElement('option');
             likedOption.value = 'liked';
             likedOption.textContent = '❤️ Canciones que te gustan';
@@ -66,7 +61,6 @@ async function loadPlaylists(url, playlistSelectElement) {
         playlists.forEach(playlist => {
             const option = document.createElement('option');
             option.value = playlist.id;
-            // La API de YouTube guarda el título en 'snippet.title'
             option.textContent = playlist.name || playlist.snippet.title; 
             playlistSelectElement.appendChild(option);
         });
@@ -75,12 +69,16 @@ async function loadPlaylists(url, playlistSelectElement) {
     }
 }
 
-async function handlePlaylistChange(playlistSelectElement, chartLayout, trackCountDisplay, loadingMessage) {
-    const playlistId = playlistSelectElement.value;
+async function handleSpotifyPlaylistChange() {
+    const playlistSelect = document.getElementById('playlist-select');
+    const playlistId = playlistSelect.value; // <-- Obtenemos el VALOR, no el elemento
     
+    const chartLayout = document.getElementById('chart-layout-container');
+    const trackCountDisplay = document.getElementById('track-count-display');
+    const loadingMessage = document.getElementById('loadingMessage');
+
     trackCountDisplay.textContent = '';
     if (myChart) myChart.destroy();
-
     if (!playlistId) {
         chartLayout.style.display = 'none';
         return;
@@ -116,8 +114,9 @@ async function handlePlaylistChange(playlistSelectElement, chartLayout, trackCou
     }
 }
 
-async function handleYouTubePlaylistChange(playlistSelectElement) {
-    const playlistId = playlistSelectElement.value;
+async function handleYouTubePlaylistChange() {
+    const playlistSelect = document.getElementById('playlist-select');
+    const playlistId = playlistSelect.value;
     const chartLayout = document.getElementById('chart-layout-container');
     const trackCountDisplay = document.getElementById('track-count-display');
     const loadingMessage = document.getElementById('loadingMessage');
