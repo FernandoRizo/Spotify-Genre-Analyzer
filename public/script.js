@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 // --- DEFINICIÓN DE FUNCIONES ---
-// (He movido la lógica a funciones más pequeñas para que sea más fácil de leer)
 
 let myChart; // Variable para la instancia del gráfico
 

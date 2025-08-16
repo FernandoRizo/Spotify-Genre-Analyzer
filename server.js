@@ -35,12 +35,13 @@ if (process.env.NODE_ENV === 'production') {
     YOUTUBE_REDIRECT_URI = credentials.youtube.redirectUri;
 }
 
+//--Middleware--
 app.use(session({
     secret: 'frase_secreta_para_la_sesion_12345',
     resave: false,
     saveUninitialized: true
 }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json()); 
 
 // --- RUTAS DE AUTENTICACIÓN ---
 
