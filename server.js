@@ -8,7 +8,7 @@ const querystring = require('querystring');
 
 // --- IMPORTAR SERVICIOS ---
 const spotifyService = require('./services/spotifyService');
-const youtubeService = require('./services/YoutubeService');
+const youtubeService = require('./services/youtubeService');
 
 const app = express();
 const PORT = 3000;
