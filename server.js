@@ -6,14 +6,12 @@ const path = require('path');
 const session = require('express-session');
 const querystring = require('querystring');
 
-// --- IMPORTAR SERVICIOS ---
-const spotifyService = require('./services/spotifyService');
-const youtubeService = require('./services/youtubeService');
+const spotifyService = require('./services/spotifyService.js');
+const youtubeService = require('./services/youtubeService.js');
 
 const app = express();
 const PORT = 3000;
 
-// --- VARIABLES DE ENTORNO ---
 let SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI;
 let YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_REDIRECT_URI;
 
@@ -26,7 +24,6 @@ if (process.env.NODE_ENV === 'production') {
     YOUTUBE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET;
     YOUTUBE_REDIRECT_URI = process.env.YOUTUBE_REDIRECT_URI;
 } else {
-    
     const credentials = require('./credentials.json');
     
     SPOTIFY_CLIENT_ID = credentials.spotify.clientId;
@@ -38,7 +35,6 @@ if (process.env.NODE_ENV === 'production') {
     YOUTUBE_REDIRECT_URI = credentials.youtube.redirectUri;
 }
 
-// --- MIDDLEWARE ---
 app.use(session({
     secret: 'frase_secreta_para_la_sesion_12345',
     resave: false,
@@ -48,31 +44,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // --- RUTAS DE AUTENTICACIÓN ---
 
-//login de Spotify
 app.get('/login', (req, res) => {
-    // El gerente le pide la URL de login al especialista de Spotify
-    const loginUrl = spotifyService.getLoginUrl(CLIENT_ID, REDIRECT_URI);
+    // CORRECCIÓN: Usar las variables específicas de Spotify
+    const loginUrl = spotifyService.getLoginUrl(SPOTIFY_CLIENT_ID, SPOTIFY_REDIRECT_URI);
     res.redirect(loginUrl);
 });
 
-app.get('/login/youtube', (req,res) => {
-    // Login de YouTube
+app.get('/login/youtube', (req, res) => {
     const scope = 'https://www.googleapis.com/auth/youtube.readonly';
     const authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' +
     querystring.stringify({
-            client_id: YOUTUBE_CLIENT_ID,
-            redirect_uri: YOUTUBE_REDIRECT_URI,
-            response_type: 'code',
-            scope: scope,
-            access_type: 'offline' // Para poder obtener un refresh token
-        });
-    
-    res.redirect(authUrl);  
+        client_id: YOUTUBE_CLIENT_ID,
+        redirect_uri: YOUTUBE_REDIRECT_URI,
+        response_type: 'code',
+        scope: scope,
+        access_type: 'offline'
+    });
+    res.redirect(authUrl);
 });
 
 app.get('/callback', async (req, res) => {
-    // Esta ruta es más compleja y se comunica directamente con el endpoint de token,
-    // así que por ahora la dejamos en el server.js principal.
     const code = req.query.code || null;
     try {
         const response = await axios({
@@ -81,11 +72,13 @@ app.get('/callback', async (req, res) => {
             data: querystring.stringify({
                 grant_type: 'authorization_code',
                 code: code,
-                redirect_uri: REDIRECT_URI
+                // CORRECCIÓN: Usar la variable específica de Spotify
+                redirect_uri: SPOTIFY_REDIRECT_URI
             }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + (Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'))
+                // CORRECCIÓN: Usar las variables específicas de Spotify
+                'Authorization': 'Basic ' + (Buffer.from(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString('base64'))
             }
         });
         
@@ -94,34 +87,32 @@ app.get('/callback', async (req, res) => {
 
         res.redirect('/');
     } catch (error) {
-        res.send("Hubo un error durante la autenticación.");
+        res.send("Hubo un error durante la autenticación de Spotify.");
         console.error("Error en /callback:", error.response ? error.response.data : error.message);
     }
 });
 
-app.get('/callback/youtube', async(req, res) => {
+app.get('/callback/youtube', async (req, res) => {
     const code = req.query.code || null;
-    try{
+    try {
         const response = await axios({
-             method: 'post',
+            method: 'post',
             url: 'https://oauth2.googleapis.com/token',
             data: querystring.stringify({
                 code: code,
                 client_id: YOUTUBE_CLIENT_ID,
                 client_secret: YOUTUBE_CLIENT_SECRET,
                 redirect_uri: YOUTUBE_REDIRECT_URI,
-                grant_type: 'authorization_code'}),
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-        })
-        //Guardar Token de YouTube
+                grant_type: 'authorization_code'
+            }),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+        
         req.session.youtubeAccessToken = response.data.access_token;
         res.redirect('/');
-
-    }catch(error){
-        res.send("Hubo un error durante la autenticación");
-        console.error("Errrir en /callback",error.response ? error.response.data : error.message);
+    } catch (error) {
+        res.send("Hubo un error durante la autenticación de YouTube.");
+        console.error("Error en /callback/youtube", error.response ? error.response.data : error.message);
     }
 });
 
@@ -132,54 +123,45 @@ app.get('/logout', (req, res) => {
 
 // --- RUTAS DE LA APLICACIÓN ---
 
-// server.js
 app.get('/check-session', (req, res) => {
     if (req.session.accessToken) {
-        // Si hay un token de Spotify, informa que el servicio es 'spotify'
         res.json({ loggedIn: true, service: 'spotify' });
     } else if (req.session.youtubeAccessToken) {
-        // Si hay un token de YouTube, informa que el servicio es 'youtube'
         res.json({ loggedIn: true, service: 'youtube' });
     } else {
         res.json({ loggedIn: false });
     }
 });
 
-//Plylist de Spotify
 app.get('/get-my-playlists', async (req, res) => {
     if (!req.session.accessToken) {
-        return res.status(401).json({ error: 'Usuario no autenticado' });
+        return res.status(401).json({ error: 'Usuario no autenticado con Spotify' });
     }
     try {
         const playlists = await spotifyService.getUserPlaylists(req.session.accessToken);
         res.json(playlists);
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener playlists' });
+        res.status(500).json({ error: 'Error al obtener playlists de Spotify' });
     }
 });
 
-//Playlist de YouTube
-app.get('/get-youtube-playlist-items', async (req, res) => {
+app.get('/get-my-youtube-playlists', async (req, res) => {
     if (!req.session.youtubeAccessToken) {
-        return res.status(401).json({ error: 'No autenticado con YouTube' });
+        return res.status(401).json({ error: 'Usuario no autenticado con YouTube' });
     }
     try {
-        const tracks = await youtubeService.getPlaylistItems(req.session.youtubeAccessToken, req.query.id);
-        res.json(tracks);
+        const playlists = await youtubeService.getPlaylists(req.session.youtubeAccessToken);
+        res.json(playlists);
     } catch (error) {
-    // AÑADIMOS ESTE CONSOLE.LOG DETALLADO
-    console.error("Error detallado de la API de YouTube:", error.response ? error.response.data : error.message);
-    res.status(500).json({ error: 'Error al obtener playlists de YouTube' });
-}
+        console.error("Error detallado de la API de YouTube:", error.response ? error.response.data : error.message);
+        res.status(500).json({ error: 'Error al obtener playlists de YouTube' });
+    }
 });
 
-// Ruta para analizar las canciones de YouTube usando la API de Spotify
 app.post('/analyze-youtube-playlist', async (req, res) => {
     const { tracks } = req.body;
     try {
-        // Esta es la lógica del "investigador" que se autentica por sí mismo
-        const spotifyToken = await spotifyService.getAppSpotifyToken(); // Necesitarás añadir esta función a tu spotifyService.js
-        
+        const spotifyToken = await spotifyService.getAppSpotifyToken();
         const analysisResults = await spotifyService.analyzeTracks(spotifyToken, tracks);
         res.json(analysisResults);
     } catch (error) {
@@ -189,13 +171,13 @@ app.post('/analyze-youtube-playlist', async (req, res) => {
 
 app.get('/get-genres', async (req, res) => {
     if (!req.session.accessToken) {
-        return res.status(401).json({ error: 'Usuario no autenticado' });
+        return res.status(401).json({ error: 'Usuario no autenticado con Spotify' });
     }
     try {
         const data = await spotifyService.getPlaylistGenres(req.session.accessToken, req.query.id);
         res.json(data);
     } catch (error) {
-        console.error("Error al procesar la playlist:", error.response ? error.response.data : error.message);
+        console.error("Error al procesar la playlist de Spotify:", error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'Error al comunicarse con Spotify' });
     }
 });
