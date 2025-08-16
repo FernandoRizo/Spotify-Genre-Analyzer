@@ -47,6 +47,8 @@ const getPlaylistGenres = async (accessToken, playlistId) => {
         }
     });
 
+    // --- LA LÓGICA DE getAppSpotifyToken FUE MOVIDA FUERA DE AQUÍ ---
+
     if (artistIds.size === 0) {
         return { genreCounts: {}, totalTracks: allTracks.length };
     }
@@ -72,9 +74,76 @@ const getPlaylistGenres = async (accessToken, playlistId) => {
     };
 };
 
+// --- ESTA ES LA POSICIÓN CORRECTA PARA ESTAS FUNCIONES ---
+
+const getAppSpotifyToken = async () => {
+    const clientId = process.env.SPOTIFY_CLIENT_ID;
+    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+
+    const response = await axios({
+        method: 'post',
+        url: 'https://accounts.spotify.com/api/token',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + (Buffer.from(clientId + ':' + clientSecret).toString('base64'))
+        },
+        data: 'grant_type=client_credentials'
+    });
+    return response.data.access_token;
+};
+
+const analyzeTracks = async (spotifyToken, tracks) => {
+    const artistIds = new Set();
+
+    for (const track of tracks) {
+        try {
+            const query = `track:${track.title} artist:${track.artist}`;
+            const searchResponse = await axios.get('open.spotify.com/artist', {
+                headers: { 'Authorization': `Bearer ${spotifyToken}` },
+                params: { q: query, type: 'track', limit: 1 }
+            });
+
+            if (searchResponse.data.tracks.items.length > 0) {
+                const foundTrack = searchResponse.data.tracks.items[0];
+                foundTrack.artists.forEach(artist => artistIds.add(artist.id));
+            }
+        } catch (error) {
+            console.error(`No se pudo buscar la canción: ${track.title}`);
+        }
+    }
+    
+    // --- LÓGICA FALTANTE AÑADIDA AQUÍ ---
+    if (artistIds.size === 0) {
+        return { genreCounts: {}, totalTracks: tracks.length };
+    }
+    
+    const genreCounts = {};
+    const artistIdArray = [...artistIds];
+
+    for (let i = 0; i < artistIdArray.length; i += 50) {
+        const batch = artistIdArray.slice(i, i + 50);
+        const artistsResponse = await axios.get(`https://api.spotify.com/v1/artists?ids=${batch.join(',')}`, {
+            headers: { 'Authorization': `Bearer ${spotifyToken}` }
+        });
+        artistsResponse.data.artists.forEach(artist => {
+            artist.genres.forEach(genre => {
+                genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+            });
+        });
+    }
+    
+    return {
+        genreCounts: genreCounts,
+        totalTracks: tracks.length
+    };
+};
+
+
 // Exportamos las funciones para que el "Gerente" (server.js) pueda usarlas
 module.exports = {
     getLoginUrl,
     getUserPlaylists,
-    getPlaylistGenres
+    getPlaylistGenres,
+    getAppSpotifyToken,
+    analyzeTracks
 };
