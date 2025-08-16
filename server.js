@@ -166,9 +166,11 @@ app.post('/analyze-youtube-playlist', async (req, res) => {
         const spotifyToken = await spotifyService.getAppSpotifyToken();
         const analysisResults = await spotifyService.analyzeTracks(spotifyToken, tracks);
         res.json(analysisResults);
-    } catch (error) {
-        res.status(500).json({ error: 'Error al analizar la playlist con Spotify' });
-    }
+    }catch (error) {
+    // AÑADIMOS ESTE CONSOLE.LOG PARA VER EL ERROR REAL
+    console.error("Error detallado al analizar playlist de YouTube:", error.response ? error.response.data : error);
+    res.status(500).json({ error: 'Error al analizar la playlist con Spotify' });
+}
 });
 
 app.get('/get-genres', async (req, res) => {
