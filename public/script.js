@@ -3,40 +3,35 @@
 // 1. TODO EL CÓDIGO SE ENVUELVE AQUÍ
 // Esto asegura que el script se ejecute solo cuando la página esté completamente cargada.
 document.addEventListener('DOMContentLoaded', async () => {
-
-    // Referencias a las vistas principales
     const loginView = document.getElementById('login-view');
     const appView = document.getElementById('app-view');
 
-    // 2. PRIMERO VERIFICAMOS LA SESIÓN, antes de hacer cualquier otra cosa
     const sessionResponse = await fetch('/check-session');
     const sessionData = await sessionResponse.json();
 
     if (sessionData.loggedIn) {
-        // 3. SOLO SI ESTÁ LOGUEADO, mostramos la app y buscamos sus elementos internos
+        // Si el usuario ya inició sesión
         loginView.style.display = 'none';
         appView.style.display = 'block';
-
-        // Ahora es seguro buscar estos elementos porque su contenedor (appView) está visible
+        updateUIText(sessionData.service); // Actualizamos el texto de la UI
         const playlistSelect = document.getElementById('playlist-select');
         const themeToggleButton = document.getElementById('theme-toggle-btn');
-        const trackCountDisplay = document.getElementById('track-count-display');
-        const loadingMessage = document.getElementById('loadingMessage');
-        const chartLayout = document.getElementById('chart-layout-container');
+        
+        setupThemeToggle(themeToggleButton); // Configura el botón del tema
 
-        // Lógica para cargar las playlists
-        loadPlaylists(playlistSelect);
-
-        // Lógica para el cambio de playlist
-        playlistSelect.addEventListener('change', () => {
-            handlePlaylistChange(playlistSelect, chartLayout, trackCountDisplay, loadingMessage);
-        });
-
-        // Lógica para el botón de tema (claro/oscuro)
-        setupThemeToggle(themeToggleButton);
+        // Decide qué playlists cargar según el servicio
+        if (sessionData.service === 'spotify') {
+            loadPlaylists('/get-my-playlists', playlistSelect, 'spotify');
+            // Cuando el usuario elija una playlist, analiza los géneros
+            playlistSelect.addEventListener('change', handleSpotifyPlaylistChange);
+        } else if (sessionData.service === 'youtube') {
+            loadPlaylists('/get-my-youtube-playlists', playlistSelect, 'youtube');
+            // Cuando el usuario elija una playlist, busca las canciones
+            playlistSelect.addEventListener('change', handleYouTubePlaylistChange);
+        }
 
     } else {
-        // Si no está logueado, solo mostramos la vista de login
+        // Si el usuario no ha iniciado sesión
         loginView.style.display = 'block';
         appView.style.display = 'none';
     }
@@ -44,20 +39,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 // --- DEFINICIÓN DE FUNCIONES ---
-// (He movido la lógica a funciones más pequeñas para que sea más fácil de leer)
 
-let myChart; // Variable global para la instancia del gráfico
+let myChart; // Variable para la instancia del gráfico
 
-async function loadPlaylists(playlistSelectElement) {
+// Función genérica para cargar las listas de reproducción
+async function loadPlaylists(url, playlistSelectElement, service) {
     try {
-        const response = await fetch('/get-my-playlists');
+        const response = await fetch(url);
         const playlists = await response.json();
         
         playlistSelectElement.innerHTML = '<option value="">-- Elige una playlist --</option>';
+
+        if (service === 'spotify') {
+            const likedOption = document.createElement('option');
+            likedOption.value = 'liked';
+            likedOption.textContent = '❤️ Canciones que te gustan';
+            playlistSelectElement.appendChild(likedOption);
+        }
+
         playlists.forEach(playlist => {
             const option = document.createElement('option');
             option.value = playlist.id;
-            option.textContent = playlist.name;
+            option.textContent = playlist.name || playlist.snippet.title; 
             playlistSelectElement.appendChild(option);
         });
     } catch (error) {
@@ -65,12 +68,16 @@ async function loadPlaylists(playlistSelectElement) {
     }
 }
 
-async function handlePlaylistChange(playlistSelectElement, chartLayout, trackCountDisplay, loadingMessage) {
-    const playlistId = playlistSelectElement.value;
+async function handleSpotifyPlaylistChange() {
+    const playlistSelect = document.getElementById('playlist-select');
+    const playlistId = playlistSelect.value; // <-- Obtenemos el VALOR, no el elemento
     
+    const chartLayout = document.getElementById('chart-layout-container');
+    const trackCountDisplay = document.getElementById('track-count-display');
+    const loadingMessage = document.getElementById('loadingMessage');
+
     trackCountDisplay.textContent = '';
     if (myChart) myChart.destroy();
-
     if (!playlistId) {
         chartLayout.style.display = 'none';
         return;
@@ -104,6 +111,94 @@ async function handlePlaylistChange(playlistSelectElement, chartLayout, trackCou
         loadingMessage.style.display = 'none';
         trackCountDisplay.textContent = `Error al analizar la playlist: ${error.message}`;
     }
+}
+
+// public/script.js
+
+async function handleYouTubePlaylistChange() {
+    const playlistSelect = document.getElementById('playlist-select');
+    const playlistId = playlistSelect.value;
+    const chartLayout = document.getElementById('chart-layout-container');
+    const trackCountDisplay = document.getElementById('track-count-display');
+    const loadingMessage = document.getElementById('loadingMessage');
+    
+    trackCountDisplay.textContent = '';
+    if (myChart) myChart.destroy();
+
+    if (!playlistId) {
+        chartLayout.style.display = 'none';
+        return;
+    }
+
+    loadingMessage.textContent = 'Obteniendo canciones de YouTube...';
+    loadingMessage.style.display = 'block';
+    chartLayout.style.display = 'none';
+
+    try {
+        // 1. Pedimos la lista de canciones a nuestro servidor (GET)
+        const itemsResponse = await fetch(`/get-youtube-playlist-items?id=${playlistId}`);
+        if (!itemsResponse.ok) throw new Error('No se pudieron obtener las canciones de la playlist.');
+        const tracks = await itemsResponse.json();
+
+        trackCountDisplay.textContent = `Se encontraron ${tracks.length} canciones. Analizando géneros con Spotify...`;
+        loadingMessage.textContent = 'Analizando géneros... (esto puede tardar)';
+
+        // 2. Enviamos esa lista a nuestro servidor para que la analice (POST)
+        // ESTA ES LA PARTE IMPORTANTE A VERIFICAR
+        const analysisResponse = await fetch('/analyze-youtube-playlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ tracks: tracks })
+        });
+        
+        const analysisData = await analysisResponse.json();
+
+        // Verificamos si la respuesta del análisis fue un error
+        if (!analysisResponse.ok) {
+            throw new Error(analysisData.error || 'Error desconocido del servidor');
+        }
+
+        // 3. Mostramos los resultados
+        trackCountDisplay.textContent = `Análisis basado en ${analysisData.totalTracks} canciones encontradas.`;
+        loadingMessage.style.display = 'none';
+        chartLayout.style.display = 'flex';
+        
+        const labels = Object.keys(analysisData.genreCounts);
+        const data = Object.values(analysisData.genreCounts);
+
+        if (labels.length > 0) {
+            renderChart(labels, data);
+        } else {
+            trackCountDisplay.textContent += ' No se encontraron géneros para analizar.';
+        }
+    } catch (error) {
+        loadingMessage.style.display = 'none';
+        trackCountDisplay.textContent = `Error al analizar la playlist: ${error.message}`;
+    }
+}
+
+/**
+ * Actualiza los textos de la UI según el servicio con el que se inició sesión.
+ * @param {string} service - El nombre del servicio 
+ */
+function updateUIText(service) {
+    const mainTitle = document.getElementById('main-title');
+    const selectLabel = document.getElementById('select-label');
+    const chartTitle = myChart ? myChart.options.plugins.title : null;
+
+    if (service === 'spotify') {
+        mainTitle.textContent = 'Analizador de Géneros para Playlists de Spotify';
+        selectLabel.textContent = 'Selecciona una de tus playlists de Spotify para analizar:';
+        if (chartTitle) chartTitle.text = 'Géneros Musicales en la Playlist de Spotify';
+    } else if (service === 'youtube') {
+        mainTitle.textContent = 'Analizador de Géneros para Playlists de YouTube';
+        selectLabel.textContent = 'Selecciona una de tus playlists de YouTube para analizar:';
+        if (chartTitle) chartTitle.text = 'Géneros Musicales en la Playlist de YouTube';
+    }
+
+    if (myChart) myChart.update(); // Actualiza la gráfica si ya existe
 }
 
 function setupThemeToggle(themeToggleButton) {
@@ -140,7 +235,9 @@ function renderChart(labels, data) {
     if (myChart) {
         myChart.destroy();
     }
-    
+     
+    const serviceName = document.getElementById('main-title').textContent.includes('Spotify') ? 'Spotify' : 'YouTube';
+    const chartTitleText = `Géneros Musicales en la Playlist de ${serviceName}`;
     const isDarkMode = document.body.classList.contains('dark-mode');
     const textColor = isDarkMode ? '#e0e0e0' : '#333';
 
@@ -164,7 +261,7 @@ function renderChart(labels, data) {
                 },
                 title: {
                     display: true,
-                    text: 'Géneros Musicales en la Playlist',
+                    text: chartTitleText,
                     color: textColor
                 }
             }
