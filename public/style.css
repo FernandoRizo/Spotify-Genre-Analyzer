@@ -11,6 +11,8 @@ body {
 
 main {
     background: white;
+    position: relative;
+    z-index: 1;
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -329,5 +331,5 @@ body.dark-mode #comment-form input, body.dark-mode #comment-form textarea {
   pointer-events: none !important;
   position: fixed;
   inset: 0;
-  z-index: -1; /* de respaldo si la config no se aplica */
+  z-index: 0 !important;/* de respaldo si la config no se aplica */
 }
