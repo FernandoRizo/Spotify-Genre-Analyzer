@@ -1,13 +1,18 @@
 // public/script.js
 
-// 1. TODO EL CÓDIGO SE ENVUELVE AQUÍ
-// Esto asegura que el script se ejecute solo cuando la página esté completamente cargada.
-tsParticles.loadJSON("particles-js", "/particles.json");
+// 1. Inicia la animación de partículas inmediatamente.
+tsParticles.loadJSON("particles-js", "particles.json");
 
+// --- VARIABLES GLOBALES ---
+let myChart; // Variable para la instancia del gráfico
+
+// --- LÓGICA PRINCIPAL DE LA PÁGINA ---
 document.addEventListener('DOMContentLoaded', async () => {
+    // Referencias a las vistas
     const loginView = document.getElementById('login-view');
     const appView = document.getElementById('app-view');
 
+    // Verifica la sesión del usuario
     const sessionResponse = await fetch('/check-session');
     const sessionData = await sessionResponse.json();
 
@@ -15,40 +20,46 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Si el usuario ya inició sesión
         loginView.style.display = 'none';
         appView.style.display = 'block';
-        updateUIText(sessionData.service); // Actualizamos el texto de la UI
+        updateUIText(sessionData.service);
+        
         const playlistSelect = document.getElementById('playlist-select');
         const themeToggleButton = document.getElementById('theme-toggle-btn');
         
-        setupThemeToggle(themeToggleButton); // Configura el botón del tema
+        setupThemeToggle(themeToggleButton);
 
-        // Decide qué playlists cargar según el servicio
+        // Decide qué playlists y eventos cargar
         if (sessionData.service === 'spotify') {
             loadPlaylists('/get-my-playlists', playlistSelect, 'spotify');
-            // Cuando el usuario elija una playlist, analiza los géneros
             playlistSelect.addEventListener('change', handleSpotifyPlaylistChange);
         } else if (sessionData.service === 'youtube') {
             loadPlaylists('/get-my-youtube-playlists', playlistSelect, 'youtube');
-            // Cuando el usuario elija una playlist, busca las canciones
             playlistSelect.addEventListener('change', handleYouTubePlaylistChange);
         }
-
     } else {
-        // Si el usuario no ha iniciado sesión
+        // Si no ha iniciado sesión
         loginView.style.display = 'block';
         appView.style.display = 'none';
     }
+
+    // Configura la lógica del modal de comentarios (siempre disponible)
+    setupFeedbackModal();
+});
+
+
+// --- DEFINICIÓN DE FUNCIONES ---
+
+function setupFeedbackModal() {
     const modal = document.getElementById('feedback-modal');
     const openBtn = document.getElementById('open-feedback-btn');
     const closeBtn = document.querySelector('.close-btn');
     const commentForm = document.getElementById('comment-form');
 
-    // Función para cargar los comentarios desde el servidor
     const loadComments = async () => {
         const commentsList = document.getElementById('comments-list');
         try {
             const response = await fetch('/api/comments');
             const comments = await response.json();
-            commentsList.innerHTML = ''; // Limpiar lista
+            commentsList.innerHTML = '';
             comments.forEach(comment => {
                 const div = document.createElement('div');
                 div.classList.add('comment-item');
@@ -60,33 +71,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    // Abrir el modal
     openBtn.addEventListener('click', (e) => {
         e.preventDefault();
         modal.classList.add('visible');
         loadComments();
-});
-
-
-// Cerrar el modal
-    closeBtn.addEventListener('click', () => modal.classList.remove('visible'));
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) { // Si se hace clic en el fondo oscuro
-            modal.classList.remove('visible');
-        }
     });
 
-    // Enviar un nuevo comentario
+    closeBtn.addEventListener('click', () => modal.classList.remove('visible'));
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('visible');
+    });
+
     commentForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const authorInput = document.getElementById('author-input');
         const textInput = document.getElementById('text-input');
-
         const newComment = {
             author: authorInput.value || 'Anónimo',
             text: textInput.value
         };
-
         try {
             await fetch('/api/comments', {
                 method: 'POST',
@@ -95,31 +98,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             authorInput.value = '';
             textInput.value = '';
-            loadComments(); // Recargar comentarios
+            loadComments();
         } catch (error) {
             alert('Error al enviar el comentario.');
         }
     });
-});
-
-// Función de seguridad para evitar inyección de HTML
-function escapeHTML(str) {
-    return str.replace(/[&<>'"]/g, 
-      tag => ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          "'": '&#39;',
-          '"': '&quot;'
-        }[tag] || tag));
 }
 
-
-// --- DEFINICIÓN DE FUNCIONES ---
-
-let myChart; // Variable para la instancia del gráfico
-
-// Función genérica para cargar las listas de reproducción
 async function loadPlaylists(url, playlistSelectElement, service) {
     try {
         const response = await fetch(url);
@@ -137,7 +122,7 @@ async function loadPlaylists(url, playlistSelectElement, service) {
         playlists.forEach(playlist => {
             const option = document.createElement('option');
             option.value = playlist.id;
-            option.textContent = playlist.name || playlist.snippet.title; 
+            option.textContent = playlist.name || playlist.snippet.title;
             playlistSelectElement.appendChild(option);
         });
     } catch (error) {
@@ -147,7 +132,7 @@ async function loadPlaylists(url, playlistSelectElement, service) {
 
 async function handleSpotifyPlaylistChange() {
     const playlistSelect = document.getElementById('playlist-select');
-    const playlistId = playlistSelect.value; // <-- Obtenemos el VALOR, no el elemento
+    const playlistId = playlistSelect.value;
     
     const chartLayout = document.getElementById('chart-layout-container');
     const trackCountDisplay = document.getElementById('track-count-display');
@@ -166,18 +151,14 @@ async function handleSpotifyPlaylistChange() {
     try {
         const response = await fetch(`/get-genres?id=${playlistId}`);
         const analysisData = await response.json();
-
         if (!response.ok) throw new Error(analysisData.error || 'Error desconocido');
 
-        const genreData = analysisData.genreCounts;
-        const totalTracks = analysisData.totalTracks;
-
-        trackCountDisplay.textContent = `Análisis basado en ${totalTracks} canciones.`;
+        trackCountDisplay.textContent = `Análisis basado en ${analysisData.totalTracks} canciones.`;
         loadingMessage.style.display = 'none';
         chartLayout.style.display = 'flex';
         
-        const labels = Object.keys(genreData);
-        const data = Object.values(genreData);
+        const labels = Object.keys(analysisData.genreCounts);
+        const data = Object.values(analysisData.genreCounts);
 
         if (labels.length > 0) {
             renderChart(labels, data);
@@ -190,18 +171,16 @@ async function handleSpotifyPlaylistChange() {
     }
 }
 
-// public/script.js
-
 async function handleYouTubePlaylistChange() {
     const playlistSelect = document.getElementById('playlist-select');
     const playlistId = playlistSelect.value;
+    
     const chartLayout = document.getElementById('chart-layout-container');
     const trackCountDisplay = document.getElementById('track-count-display');
     const loadingMessage = document.getElementById('loadingMessage');
     
     trackCountDisplay.textContent = '';
     if (myChart) myChart.destroy();
-
     if (!playlistId) {
         chartLayout.style.display = 'none';
         return;
@@ -212,32 +191,21 @@ async function handleYouTubePlaylistChange() {
     chartLayout.style.display = 'none';
 
     try {
-        // 1. Pedimos la lista de canciones a nuestro servidor (GET)
         const itemsResponse = await fetch(`/get-youtube-playlist-items?id=${playlistId}`);
-        if (!itemsResponse.ok) throw new Error('No se pudieron obtener las canciones de la playlist.');
+        if (!itemsResponse.ok) throw new Error('No se pudieron obtener las canciones.');
         const tracks = await itemsResponse.json();
 
-        trackCountDisplay.textContent = `Se encontraron ${tracks.length} canciones. Analizando géneros con Spotify...`;
         loadingMessage.textContent = 'Analizando géneros... (esto puede tardar)';
-
-        // 2. Enviamos esa lista a nuestro servidor para que la analice (POST)
-        // ESTA ES LA PARTE IMPORTANTE A VERIFICAR
+        trackCountDisplay.textContent = `Se encontraron ${tracks.length} canciones. Analizando...`;
+        
         const analysisResponse = await fetch('/analyze-youtube-playlist', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ tracks: tracks })
         });
-        
         const analysisData = await analysisResponse.json();
-
-        // Verificamos si la respuesta del análisis fue un error
-        if (!analysisResponse.ok) {
-            throw new Error(analysisData.error || 'Error desconocido del servidor');
-        }
-
-        // 3. Mostramos los resultados
+        if (!analysisResponse.ok) throw new Error(analysisData.error || 'Error desconocido del servidor');
+        
         trackCountDisplay.textContent = `Análisis basado en ${analysisData.totalTracks} canciones encontradas.`;
         loadingMessage.style.display = 'none';
         chartLayout.style.display = 'flex';
@@ -256,41 +224,28 @@ async function handleYouTubePlaylistChange() {
     }
 }
 
-/**
- * Actualiza los textos de la UI según el servicio con el que se inició sesión.
- * @param {string} service - El nombre del servicio 
- */
 function updateUIText(service) {
     const mainTitle = document.getElementById('main-title');
     const selectLabel = document.getElementById('select-label');
-    const chartTitle = myChart ? myChart.options.plugins.title : null;
 
     if (service === 'spotify') {
         mainTitle.textContent = 'Analizador de Géneros para Playlists de Spotify';
-        selectLabel.textContent = 'Selecciona una de tus playlists de Spotify para analizar:';
-        if (chartTitle) chartTitle.text = 'Géneros Musicales en la Playlist de Spotify';
+        selectLabel.textContent = 'Selecciona una de tus playlists de Spotify:';
     } else if (service === 'youtube') {
         mainTitle.textContent = 'Analizador de Géneros para Playlists de YouTube';
-        selectLabel.textContent = 'Selecciona una de tus playlists de YouTube para analizar:';
-        if (chartTitle) chartTitle.text = 'Géneros Musicales en la Playlist de YouTube';
+        selectLabel.textContent = 'Selecciona una de tus playlists de YouTube:';
     }
-
-    if (myChart) myChart.update(); // Actualiza la gráfica si ya existe
 }
 
 function setupThemeToggle(themeToggleButton) {
-    // Aplicar el tema guardado al cargar la página
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         themeToggleButton.innerHTML = '☀️';
     } else {
         themeToggleButton.innerHTML = '🌙';
     }
-
-    // Evento de clic para el botón
     themeToggleButton.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
-
         if (document.body.classList.contains('dark-mode')) {
             localStorage.setItem('theme', 'dark');
             themeToggleButton.innerHTML = '☀️';
@@ -298,21 +253,16 @@ function setupThemeToggle(themeToggleButton) {
             localStorage.setItem('theme', 'light');
             themeToggleButton.innerHTML = '🌙';
         }
-
         if (myChart) {
-            const labels = myChart.data.labels;
-            const data = myChart.data.datasets[0].data;
-            renderChart(labels, data);
+            renderChart(myChart.data.labels, myChart.data.datasets[0].data);
         }
     });
 }
 
 function renderChart(labels, data) {
     const ctx = document.getElementById('genreChart').getContext('2d');
-    if (myChart) {
-        myChart.destroy();
-    }
-     
+    if (myChart) myChart.destroy();
+    
     const serviceName = document.getElementById('main-title').textContent.includes('Spotify') ? 'Spotify' : 'YouTube';
     const chartTitleText = `Géneros Musicales en la Playlist de ${serviceName}`;
     const isDarkMode = document.body.classList.contains('dark-mode');
@@ -323,7 +273,6 @@ function renderChart(labels, data) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Distribución de Géneros',
                 data: data,
                 backgroundColor: generateRandomColors(labels.length),
                 hoverOffset: 4
@@ -333,9 +282,7 @@ function renderChart(labels, data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false 
-                },
+                legend: { display: false },
                 title: {
                     display: true,
                     text: chartTitleText,
@@ -344,7 +291,6 @@ function renderChart(labels, data) {
             }
         }
     });
-
     generateHtmlLegend(myChart);
 }
 
@@ -359,16 +305,11 @@ function generateRandomColors(count) {
 
 function generateHtmlLegend(chart) {
     const legendContainer = document.getElementById('legend-container');
-    legendContainer.innerHTML = ''; 
-
-    const legendItems = chart.data.labels.map((label, index) => {
-        const backgroundColor = chart.data.datasets[0].backgroundColor[index];
-        return {
-            text: label,
-            fillStyle: backgroundColor
-        };
-    });
-
+    legendContainer.innerHTML = '';
+    const legendItems = chart.data.labels.map((label, index) => ({
+        text: label,
+        fillStyle: chart.data.datasets[0].backgroundColor[index]
+    }));
     legendItems.forEach(item => {
         const div = document.createElement('div');
         div.classList.add('legend-item');
@@ -380,4 +321,14 @@ function generateHtmlLegend(chart) {
         div.appendChild(text);
         legendContainer.appendChild(div);
     });
+}
+
+function escapeHTML(str) {
+    return str.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+    }[tag] || tag));
 }
