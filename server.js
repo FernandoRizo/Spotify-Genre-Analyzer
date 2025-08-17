@@ -16,6 +16,7 @@ const PORT = 3000;
 
 let SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI;
 let YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_REDIRECT_URI;
+let DATABASE_URL;
 
 if (process.env.NODE_ENV === 'production') {
     SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
@@ -25,6 +26,8 @@ if (process.env.NODE_ENV === 'production') {
     YOUTUBE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID;
     YOUTUBE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET;
     YOUTUBE_REDIRECT_URI = process.env.YOUTUBE_REDIRECT_URI;
+
+    DATABASE_URL = process.env.DATABASE_URL;
 } else {
     const credentials = require('./credentials.json');
     
@@ -35,15 +38,31 @@ if (process.env.NODE_ENV === 'production') {
     YOUTUBE_CLIENT_ID = credentials.youtube.clientId;
     YOUTUBE_CLIENT_SECRET = credentials.youtube.clientSecret;
     YOUTUBE_REDIRECT_URI = credentials.youtube.redirectUri;
+
+    DATABASE_URL = credentials.database.connectionString;
 }
 //----Conectar con Mongo -----
-const dbUrl = process.env.NODE_ENV === 'production' 
+/*const dbUrl = process.env.NODE_ENV === 'production' 
     ? process.env.DATABASE_URL 
     : require('./credentials.json').database.connectionString;
+    console.log("Intentando conectar a la base de datos..."); */
 
-mongoose.connect(dbUrl)
-    .then(() => console.log("Conectado a MongoDB Atlas exitosamente."))
-    .catch(err => console.error("Error al conectar a MongoDB:", err));
+ console.log("Intentando conectar a la base de datos...");
+mongoose.connect(DATABASE_URL)
+    .then(() => console.log("✅ Conectado a MongoDB Atlas exitosamente."))
+    .catch(err => console.error("❌ Error al conectar a MongoDB:", err));
+
+
+//--Middleware--
+app.use(session({
+    secret: 'frase_secreta_para_la_sesion_12345',
+    resave: false,
+    saveUninitialized: true
+}));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+
+// --- RUTAS DE AUTENTICACIÓN ---
 
 app.get('/api/comments', async (req, res) => {
     try {
@@ -66,17 +85,6 @@ app.post('/api/comments', async (req, res) => {
         res.status(500).json({ error: 'Error al guardar el comentario' });
     }
 });
-
-//--Middleware--
-app.use(session({
-    secret: 'frase_secreta_para_la_sesion_12345',
-    resave: false,
-    saveUninitialized: true
-}));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-
-// --- RUTAS DE AUTENTICACIÓN ---
 
 app.get('/login', (req, res) => {
     // CORRECCIÓN: Usar las variables específicas de Spotify
