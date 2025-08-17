@@ -324,4 +324,10 @@ body.dark-mode #comment-form input, body.dark-mode #comment-form textarea {
     padding: 12px;
 }
 
-
+#particles-js,
+#particles-js canvas {
+  pointer-events: none !important;
+  position: fixed;
+  inset: 0;
+  z-index: -1; /* de respaldo si la config no se aplica */
+}

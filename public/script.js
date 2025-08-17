@@ -1,7 +1,7 @@
 // public/script.js
 
 // 1. Inicia la animación de partículas inmediatamente.
-tsParticles.loadJSON("particles-js", "particles.json");
+//tsParticles.loadJSON("particles-js", "particles.json");
 
 // --- VARIABLES GLOBALES ---
 let myChart; // Variable para la instancia del gráfico
@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Referencias a las vistas
     const loginView = document.getElementById('login-view');
     const appView = document.getElementById('app-view');
+     try {
+    await tsParticles.loadJSON("particles-js", "/particles.json"); 
+  } catch (e) {
+    console.error("No se pudo cargar particles.json", e);
+  }
 
     // Verifica la sesión del usuario
     const sessionResponse = await fetch('/check-session');
