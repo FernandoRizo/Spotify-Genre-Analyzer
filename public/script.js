@@ -23,7 +23,7 @@ function vantaPalette() {
   };
 }
 function initVanta() {
-  if (vantaEffect) vantaEffect.destroy();
+ // if (vantaEffect) vantaEffect.destroy();
 
   const p = vantaPalette();
   vantaEffect = VANTA.WAVES({
