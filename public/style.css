@@ -10,7 +10,7 @@ body {
 }
 
 main {
-    background: white;
+    /*background: white;*/
     position: relative;
     z-index: 1;
     padding: 2rem;
