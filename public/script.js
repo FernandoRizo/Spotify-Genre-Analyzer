@@ -37,6 +37,38 @@ function initVanta() {
   });
 }
 
+function spawnDecorShapes(count = (window.innerWidth < 720 ? 8 : 12)) {
+  const container = document.getElementById('decor-shapes');
+  if (!container) return;
+  container.innerHTML = ''; // limpia por si recargas
+
+  const types = ['bubble', 'ring', 'triangle', 'square'];
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('span');
+    el.className = 'shape ' + types[Math.floor(Math.random() * types.length)];
+
+    const sz = Math.floor(60 + Math.random() * 140);               // 60–200px
+    const top = Math.floor(5 + Math.random() * 85);                 // 5–90%
+    const left = Math.floor(5 + Math.random() * 90);                // 5–95%
+    const drift = (Math.random() * 220 - 110).toFixed(0) + 'px';    // -110–110px
+    const durY = (12 + Math.random() * 12).toFixed(1) + 's';        // 12–24s
+    const durX = (20 + Math.random() * 22).toFixed(1) + 's';        // 20–42s
+    const durR = (35 + Math.random() * 40).toFixed(1) + 's';        // 35–75s
+    const scale = (0.7 + Math.random() * 0.8).toFixed(2);           // 0.7–1.5
+
+    el.style.setProperty('--sz', sz + 'px');
+    el.style.setProperty('--top', top + '%');
+    el.style.setProperty('--left', left + '%');
+    el.style.setProperty('--drift', drift);
+    el.style.setProperty('--durY', durY);
+    el.style.setProperty('--durX', durX);
+    el.style.setProperty('--durR', durR);
+    el.style.setProperty('--scale', scale);
+
+    container.appendChild(el);
+  }
+}
+
 // --- LÓGICA PRINCIPAL DE LA PÁGINA ---
 document.addEventListener('DOMContentLoaded', async () => {
     // Referencias a las vistas
@@ -44,7 +76,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const appView = document.getElementById('app-view');
      
     initVanta();
-  
+    spawnDecorShapes();
   
 
     // Verifica la sesión del usuario
