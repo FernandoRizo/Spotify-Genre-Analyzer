@@ -37,10 +37,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   "clear": true,
   "defaultThemes": {},
   "delay": 0,
-  "fullScreen": {
-    "enable": true,
-    "zIndex": 0
-  },
   "detectRetina": true,
   "duration": 0,
   "fpsLimit": 120,
