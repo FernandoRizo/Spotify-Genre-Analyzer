@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loginView = document.getElementById('login-view');
     const appView = document.getElementById('app-view');
      try {
-    await tsParticles.loadJSON("particles-js", "/particles.json"); 
+    await tsParticles.loadJSON("particles-js", "/particles.json?v=4"); 
   } catch (e) {
     console.error("No se pudo cargar particles.json", e);
   }
