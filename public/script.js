@@ -2,7 +2,7 @@
 
 // 1. TODO EL CÓDIGO SE ENVUELVE AQUÍ
 // Esto asegura que el script se ejecute solo cuando la página esté completamente cargada.
-tsParticles.loadJSON("particles-js", "particles.json");
+tsParticles.loadJSON("particles-js", "/particles.json");
 
 document.addEventListener('DOMContentLoaded', async () => {
     const loginView = document.getElementById('login-view');
