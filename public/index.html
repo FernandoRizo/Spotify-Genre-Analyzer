@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analizador de Géneros</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.3.0/tsparticles.bundle.min.js"></script>
+    
 </head>
 <body>
-    <div id="particles-js"></div>
+    <div id="vanta-bg" aria-hidden="true"></div>
+    <div id="decor-shapes" aria-hidden="true"></div>
     <main>
         <h1 id="main-title">Analizador de Géneros para Playlists</h1>
 
@@ -42,7 +43,9 @@
             <p id="loadingMessage" style="display:none;">Analizando, por favor espera...</p>
             
         </div>
-    </main>
+    </main>  
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.waves.min.js"></script>
 
     <script src="script.js"></script>
     <div id="feedback-modal" class="modal-overlay">
