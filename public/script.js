@@ -11,16 +11,29 @@ function getVantaColor() {
   // elige un color distinto para modo oscuro si quieres
   return document.body.classList.contains('dark-mode') ? 0x0b1437 : 0x0d47a1;
 }
-
+function vantaPalette() {
+  const dark = document.body.classList.contains('dark-mode');
+  return {
+    // color de las olas
+    color: dark ? 0x66e0ff : 0x2196f3,
+    waveHeight: dark ? 12 : 10,
+    waveSpeed: 0.6,
+    shininess: 60,
+    zoom: 1.03
+  };
+}
 function initVanta() {
-  if (vantaEffect) vantaEffect.destroy(); // limpia si ya existe
+  if (vantaEffect) vantaEffect.destroy();
+
+  const p = vantaPalette();
   vantaEffect = VANTA.WAVES({
     el: "#vanta-bg",
-    color: getVantaColor(),
-    shininess: 50,
-    waveHeight: 15,
-    waveSpeed: 0.5,
-    zoom: 1.0
+    color: p.color,
+    waveHeight: p.waveHeight,
+    waveSpeed: p.waveSpeed,
+    shininess: p.shininess,
+    zoom: p.zoom,
+    backgroundAlpha: 0.0 // 👈 canvas transparente (deja ver el degradado CSS)
   });
 }
 
