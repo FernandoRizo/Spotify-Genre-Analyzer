@@ -10,7 +10,7 @@ body {
 }
 
 main {
-    background: white;
+    /*background: white;*/
     position: relative;
     z-index: 1;
     padding: 2rem;
@@ -327,9 +327,10 @@ body.dark-mode #comment-form input, body.dark-mode #comment-form textarea {
 }
 
 #particles-js,
-#particles-js canvas {
+#particles-js canvas,
+.tsparticles-canvas-el {
   pointer-events: none !important;
   position: fixed;
   inset: 0;
-  z-index: 0 !important;/* de respaldo si la config no se aplica */
+  z-index: 0 !important;
 }
