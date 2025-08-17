@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loginView = document.getElementById('login-view');
     const appView = document.getElementById('app-view');
      
-    await tsParticles.loadJSON("particles-js",{
+    await tsParticles.load("particles-js",{
   "autoPlay": true,
   "background": {
     "color": {
