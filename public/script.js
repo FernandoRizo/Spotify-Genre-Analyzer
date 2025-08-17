@@ -23,7 +23,12 @@ function vantaPalette() {
   };
 }
 function initVanta() {
- // if (vantaEffect) vantaEffect.destroy();
+ if (vantaEffect) {
+    try { vantaEffect.destroy(); } catch {}
+    vantaEffect = null;
+  }
+  const el = document.getElementById('vanta-bg');
+  if (!el || !window.VANTA || !VANTA.WAVES) return;
 
   const p = vantaPalette();
   vantaEffect = VANTA.WAVES({
@@ -113,7 +118,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
+
 // --- DEFINICIÓN DE FUNCIONES ---
+
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted || !document.querySelector('#vanta-bg canvas')) {
+    initVanta();
+    spawnDecorShapes();
+  }
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && !document.querySelector('#vanta-bg canvas')) {
+    initVanta();
+  }
+});
+
+window.addEventListener('beforeunload', () => {
+  if (vantaEffect) {
+    try { vantaEffect.destroy(); } catch {}
+    vantaEffect = null;
+  }
+});
+
+let resizeTO;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTO);
+  resizeTO = setTimeout(() => {
+    initVanta();
+    spawnDecorShapes();
+  }, 200);
+});
 
 function setupFeedbackModal() {
     const modal = document.getElementById('feedback-modal');
