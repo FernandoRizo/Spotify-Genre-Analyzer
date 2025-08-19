@@ -104,8 +104,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadPlaylists('/get-my-playlists', playlistSelect, 'spotify');
             playlistSelect.addEventListener('change', handleSpotifyPlaylistChange);
             //Se muestra sección de más escuchados
-            const historySection = document.getElementById('history-Section');
-            historySection.style.display = 'bloclk';
+            const historySection = document.getElementById('history-section');
+            historySection.style.display = 'block';
             // Función para cargar y mostrar los top items
             const fetchTopItems = async (timeRange = 'medium_term') => {
                 const artistsList = document.getElementById('top-artists-list');
