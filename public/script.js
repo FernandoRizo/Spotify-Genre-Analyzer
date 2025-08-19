@@ -104,48 +104,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadPlaylists('/get-my-playlists', playlistSelect, 'spotify');
             playlistSelect.addEventListener('change', handleSpotifyPlaylistChange);
             //Se muestra sección de más escuchados
-            const historySection = document.getElementById('history-section');
-    historySection.style.display = 'block';
-
-    // Función para cargar y mostrar los top items
-    const fetchTopItems = async (timeRange = 'medium_term') => {
-        const artistsList = document.getElementById('top-artists-list');
-        const tracksList = document.getElementById('top-tracks-list');
-        artistsList.innerHTML = '<li>Cargando...</li>';
-        tracksList.innerHTML = '<li>Cargando...</li>';
-
-        try {
-            // Pedir top artistas
-            const artistsRes = await fetch(`/api/top-artists?time_range=${timeRange}`);
-            const artists = await artistsRes.json();
-            artistsList.innerHTML = artists.map(artist => `<li>${artist.name}</li>`).join('');
-
-            // Pedir top canciones
-            const tracksRes = await fetch(`/api/top-tracks?time_range=${timeRange}`);
-            const tracks = await tracksRes.json();
-            tracksList.innerHTML = tracks.map(track => `<li>${track.name} - <i>${track.artists[0].name}</i></li>`).join('');
-        } catch (error) {
-            artistsList.innerHTML = '<li>Error al cargar.</li>';
-            tracksList.innerHTML = '<li>Error al cargar.</li>';
-        }
-    };
-
-    
-    // Lógica para los botones de rango de tiempo
-    const timeRangeButtons = document.querySelectorAll('.time-range-buttons button');
-    timeRangeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            timeRangeButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            fetchTopItems(button.dataset.range);
-        });
-    });
-            fetchTopItems();
+            
+            
             setupHistorySidebar();
 
         } else if (sessionData.service === 'youtube') {
             loadPlaylists('/get-my-youtube-playlists', playlistSelect, 'youtube');
             playlistSelect.addEventListener('change', handleYouTubePlaylistChange);
+            document.getElementById('open-history-sidebar-btn').style.display = 'none';
         }
     } else {
         // Si no ha iniciado sesión
@@ -161,6 +127,36 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // --- DEFINICIÓN DE FUNCIONES ---
 
+async function fetchTopItems(timeRange = 'medium_term') {
+    const artistsList = document.getElementById('top-artists-list');
+    const tracksList = document.getElementById('top-tracks-list');
+    artistsList.innerHTML = '<li>Cargando...</li>';
+    tracksList.innerHTML = '<li>Cargando...</li>';
+
+    try {
+        const artistsRes = await fetch(`/api/top-artists?time_range=${timeRange}`);
+        const artists = await artistsRes.json();
+        artistsList.innerHTML = artists.map(artist => `<li>${artist.name}</li>`).join('');
+
+        const tracksRes = await fetch(`/api/top-tracks?time_range=${timeRange}`);
+        const tracks = await tracksRes.json();
+        tracksList.innerHTML = tracks.map(track => `<li>${track.name} - <i>${track.artists[0].name}</i></li>`).join('');
+    } catch (error) {
+        artistsList.innerHTML = '<li>Error al cargar.</li>';
+        tracksList.innerHTML = '<li>Error al cargar.</li>';
+    }
+}
+
+    
+    // Lógica para los botones de rango de tiempo
+    const timeRangeButtons = document.querySelectorAll('.time-range-buttons button');
+    timeRangeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            timeRangeButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            fetchTopItems(button.dataset.range);
+        });
+    });
 window.addEventListener('pageshow', (e) => {
   if (e.persisted || !document.querySelector('#vanta-bg canvas')) {
     initVanta();
