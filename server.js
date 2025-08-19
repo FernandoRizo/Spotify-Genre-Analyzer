@@ -243,32 +243,41 @@ app.get('/get-genres', async (req, res) => {
 });
 
 //Obtiene artistas más escuchados
-app.get('/api/top-artists', async (req, res) =>  {
-    if(!req.session.accessToken){
-        return res.status(401).json({ error: 'Usuario no autenticado'});
-    }
-    try{
-        const timeRange = req.query.time_range || 'long_term';
-        const artists = await spotifyService.getUserTopItems(req.session.accessToken, 'artists', timeRange);
-        res.json(artists);
-    }catch(error){
-        res.status(500).json({error: 'Error al obtener artistas'});
-    }
+app.get('/api/top-artists', async (req, res) => {
+  if (!req.session.accessToken) {
+    return res.status(401).json({ error: 'No autenticado con Spotify' });
+  }
+  try {
+    const timeRange = req.query.time_range || 'medium_term';
+    const items = await spotifyService.getUserTopItems(
+      req.session.accessToken, 'artists', timeRange
+    );
+    // Devuelve sólo lo que usa el front
+    res.json(items.map(a => ({ name: a.name })));
+  } catch (e) {
+    console.error('Top artists error:', e.response?.data || e.message);
+    res.status(500).json({ error: 'No se pudo obtener top artistas' });
+  }
 });
 
 //Obtener canciones más escuchadas
-app.get('/api/top-tracks', async (req,res) =>{
-    if(!req.session.accessToken){
-        return res.status(401).json({error: 'Usuario no autenticado'});
-    }
-    try{
-        const timeRange = req.query.time_range || 'long_term';
-        const tracks = await spotifyService.getUserTopItems(req.session.accessToken, 'tracks', timeRange);
-        res.json(tracks);
-
-    }catch(error){
-        res.status(500).json({error: 'Error al obtener canciones'});
-    }
+app.get('/api/top-tracks', async (req, res) => {
+  if (!req.session.accessToken) {
+    return res.status(401).json({ error: 'No autenticado con Spotify' });
+  }
+  try {
+    const timeRange = req.query.time_range || 'medium_term';
+    const items = await spotifyService.getUserTopItems(
+      req.session.accessToken, 'tracks', timeRange
+    );
+    res.json(items.map(t => ({
+      name: t.name,
+      artists: t.artists?.map(a => ({ name: a.name })) || []
+    })));
+  } catch (e) {
+    console.error('Top tracks error:', e.response?.data || e.message);
+    res.status(500).json({ error: 'No se pudo obtener top canciones' });
+  }
 });
 // --- INICIAR SERVIDOR ---
 app.listen(PORT, () => {

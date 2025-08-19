@@ -252,7 +252,7 @@ async function loadPlaylists(url, playlistSelectElement, service) {
         if (service === 'spotify') {
             const likedOption = document.createElement('option');
             likedOption.value = 'liked';
-            likedOption.textContent = '❤️ Canciones que te gustan';
+            //likedOption.textContent = '❤️ Canciones que te gustan';
             playlistSelectElement.appendChild(likedOption);
         }
 

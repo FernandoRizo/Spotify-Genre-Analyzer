@@ -77,7 +77,7 @@ const getPlaylistGenres = async (accessToken, playlistId) => {
 
 //
 const getUserTopItems = async(accessToken, type, timeRange='long_term') =>{
-    const response = await axios.get(`https://api.spotify.com/v1/artists/4Z8W4fKeB5YxbusRsdQVPb${type}`,{
+    const response = await axios.get(`https://api.spotify.com/v1/me/top/${type}`,{
         headers : { 'Authorization': `Bearer ${accessToken}` },
          params: {
             time_range: timeRange, // 'short_term', 'medium_term', o 'long_term'
