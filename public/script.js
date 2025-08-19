@@ -249,12 +249,12 @@ async function loadPlaylists(url, playlistSelectElement, service) {
         
         playlistSelectElement.innerHTML = '<option value="">-- Elige una playlist --</option>';
 
-        if (service === 'spotify') {
+        /*if (service === 'spotify') {
             const likedOption = document.createElement('option');
             likedOption.value = 'liked';
             //likedOption.textContent = '❤️ Canciones que te gustan';
             //playlistSelectElement.appendChild(likedOption);
-        }
+        }*/
 
         playlists.forEach(playlist => {
             const option = document.createElement('option');
