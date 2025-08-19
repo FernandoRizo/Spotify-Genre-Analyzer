@@ -76,50 +76,36 @@ function spawnDecorShapes(count = (window.innerWidth < 720 ? 8 : 12)) {
 
 // --- LÓGICA PRINCIPAL DE LA PÁGINA ---
 document.addEventListener('DOMContentLoaded', async () => {
-    // Referencias a las vistas
-    const loginView = document.getElementById('login-view');
-    const appView = document.getElementById('app-view');
-     
     initVanta();
     spawnDecorShapes();
-  
 
-    // Verifica la sesión del usuario
+    const loginView = document.getElementById('login-view');
+    const appView = document.getElementById('app-view');
     const sessionResponse = await fetch('/check-session');
     const sessionData = await sessionResponse.json();
 
     if (sessionData.loggedIn) {
-        // Si el usuario ya inició sesión
         loginView.style.display = 'none';
         appView.style.display = 'block';
         updateUIText(sessionData.service);
-        
         const playlistSelect = document.getElementById('playlist-select');
         const themeToggleButton = document.getElementById('theme-toggle-btn');
-        
         setupThemeToggle(themeToggleButton);
 
-        // Decide qué playlists y eventos cargar
         if (sessionData.service === 'spotify') {
             loadPlaylists('/get-my-playlists', playlistSelect, 'spotify');
-            playlistSelect.addEventListener('change', handleSpotifyPlaylistChange);
-            //Se muestra sección de más escuchados
-            
-            
+            playlistSelect.addEventListener('change', () => handlePlaylistChange(sessionData.service));
             setupHistorySidebar();
-
         } else if (sessionData.service === 'youtube') {
             loadPlaylists('/get-my-youtube-playlists', playlistSelect, 'youtube');
-            playlistSelect.addEventListener('change', handleYouTubePlaylistChange);
+            playlistSelect.addEventListener('change', () => handlePlaylistChange(sessionData.service));
             document.getElementById('open-history-sidebar-btn').style.display = 'none';
         }
     } else {
-        // Si no ha iniciado sesión
         loginView.style.display = 'block';
         appView.style.display = 'none';
     }
 
-    // Configura la lógica del modal de comentarios (siempre disponible)
     setupFeedbackModal();
 });
 

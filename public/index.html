@@ -6,10 +6,13 @@
     <title>Analizador de Géneros</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.3.0/tsparticles.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
 </head>
 <body>
-    <div id="particles-js"></div>
+    <div id="vanta-bg"></div>
+    <div id="decor-shapes"></div>
+
     <main>
         <h1 id="main-title">Analizador de Géneros para Playlists</h1>
 
@@ -19,21 +22,18 @@
                 <a href="/login" class="login-button spotify">Iniciar Sesión con Spotify</a>
                 <a href="/login/youtube" class="login-button youtube">Iniciar Sesión con YouTube</a>
             </div>
-            <a href="#" id="open-feedback-btn" class="feedback-link">Dejar un comentario o sugerencia</a>
+            <a href="#" id="open-feedback-btn" class="feedback-link">¡Sé parte del proceso!</a>
         </div>
 
         <div id="app-view" style="display:none;">
             <div class="header-controls">
                 <label id="select-label" for="playlist-select">Selecciona una de tus playlists:</label>
                 <select id="playlist-select"></select>
-                <button id="theme-toggle-btn">🌙</button> 
+                <button id="theme-toggle-btn">🌙</button>
                 <a href="/logout" class="logout-link">Cerrar Sesión</a>
             </div>
-
             <button id="open-history-sidebar-btn">Ver Top Artistas/Canciones</button>
-            
             <p id="track-count-display" style="min-height: 1.2em; margin-top: 1rem;"></p>
-            
             <div id="chart-layout-container">
                 <div id="chart-wrapper">
                     <div class="chart-container">
@@ -42,9 +42,7 @@
                 </div>
                 <div id="legend-container"></div>
             </div>
-
             <p id="loadingMessage" style="display:none;">Analizando...</p>
-
             <div id="history-sidebar">
                 <button id="close-history-sidebar-btn">&times;</button>
                 <h2>Tu Historial de Escucha</h2>
@@ -66,10 +64,21 @@
             </div>
         </div>
     </main>
-
-    <script src="script.js"></script>
     
     <div id="feedback-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Comentarios y Sugerencias</h2>
+            <div id="comments-list"></div>
+            <form id="comment-form">
+                <h3>Deja tu comentario</h3>
+                <input type="text" id="author-input" placeholder="Tu nombre (opcional)">
+                <textarea id="text-input" placeholder="Escribe tu comentario o Sugerencia aquí..." required></textarea>
+                <button type="submit">Enviar</button>
+            </form>
         </div>
+    </div>
+    
+    <script src="script.js"></script>
 </body>
 </html>
