@@ -54,6 +54,19 @@ mongoose.connect(DATABASE_URL)
     .catch(err => console.error("❌ Error al conectar a MongoDB:", err));
 
 
+app.set('trust proxy', 1);
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'dev_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production', // true en Vercel
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  }
+}));
 //--Middleware--
 app.use(session({
     secret: 'frase_secreta_para_la_sesion_12345',
