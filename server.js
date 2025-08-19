@@ -9,6 +9,7 @@ const session = require('express-session');
 const querystring = require('querystring');
 const spotifyService = require('./services/spotifyService.js');
 const youtubeService = require('./services/youtubeService.js');
+const { error } = require('console');
 // -------------------------------------------------------------
 
 const app = express();
@@ -241,6 +242,34 @@ app.get('/get-genres', async (req, res) => {
     }
 });
 
+//Obtiene artistas más escuchados
+app.get('/api/top-artists', async (req, res) =>  {
+    if(!req.session.accessToken){
+        return res.status(401).json({ error: 'Usuario no autenticado'});
+    }
+    try{
+        const timeRange = req.query.time_range || 'long_term';
+        const artists = await spotifyService.getUserTopItems(req.session.accessToken, 'artists', timeRange);
+        res.json(artists);
+    }catch(error){
+        res.status(500).json({error: 'Error al obtener artistas'});
+    }
+});
+
+//Obtener canciones más escuchadas
+app.get('/api/top-tracks', async (req,res) =>{
+    if(!req.session.accessToken){
+        return res.status(401).json({error: 'Usuario no autenticado'});
+    }
+    try{
+        const timeRange = req.query.time_range || 'long_term';
+        const tracks = await spotifyService.getUserTopItems(req.session.accessToken, 'tracks', timeRange);
+        res.json(tracks);
+
+    }catch(error){
+        res.status(500).json({error: 'Error al obtener canciones'});
+    }
+});
 // --- INICIAR SERVIDOR ---
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en http://localhost:${PORT}`);

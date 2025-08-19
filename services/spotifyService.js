@@ -1,10 +1,11 @@
 // services/spotifyService.js
 const axios = require('axios');
+const { access } = require('fs');
 const querystring = require('querystring');
 
 // Esta función no es una ruta, solo construye la URL de login
 const getLoginUrl = (clientId, redirectUri) => {
-    const scope = 'playlist-read-private user-library-read';
+    const scope = 'playlist-read-private user-library-read user-top-read';
     return 'https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
@@ -74,6 +75,18 @@ const getPlaylistGenres = async (accessToken, playlistId) => {
     };
 };
 
+//
+const getUserTopItems = async(accessToken, type, timeRange='long_term') =>{
+    const response = await axios.get(`https://api.spotify.com/v1/artists/4Z8W4fKeB5YxbusRsdQVPb${type}`,{
+        headers : { 'Authorization': `Bearer ${accessToken}` },
+         params: {
+            time_range: timeRange, // 'short_term', 'medium_term', o 'long_term'
+            limit: 50 
+        }
+    });
+    return response.data.items;
+} 
+
 
 const getAppSpotifyToken = async (clientId, clientSecret) => {
     
@@ -142,5 +155,6 @@ module.exports = {
     getUserPlaylists,
     getPlaylistGenres,
     getAppSpotifyToken,
-    analyzeTracks
+    analyzeTracks,
+    getUserTopItems
 };
