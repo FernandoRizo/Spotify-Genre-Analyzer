@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    
     // Lógica para los botones de rango de tiempo
     const timeRangeButtons = document.querySelectorAll('.time-range-buttons button');
     timeRangeButtons.forEach(button => {
@@ -140,6 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
             fetchTopItems();
+            setupHistorySidebar();
 
         } else if (sessionData.service === 'youtube') {
             loadPlaylists('/get-my-youtube-playlists', playlistSelect, 'youtube');
@@ -165,6 +167,32 @@ window.addEventListener('pageshow', (e) => {
     spawnDecorShapes();
   }
 });
+
+function setupHistorySidebar() {
+    const openBtn = document.getElementById('open-history-sidebar-btn');
+    const closeBtn = document.getElementById('close-history-sidebar-btn');
+    const sidebar = document.getElementById('history-sidebar');
+
+    openBtn.style.display = 'inline-block'; // Asegúrate de que el botón sea visible
+
+    openBtn.addEventListener('click', () => {
+        sidebar.classList.add('visible');
+        fetchTopItems(); // Carga los datos al abrir
+    });
+
+    closeBtn.addEventListener('click', () => {
+        sidebar.classList.remove('visible');
+    });
+
+    const timeRangeButtons = document.querySelectorAll('#history-sidebar .time-range-buttons button');
+    timeRangeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            timeRangeButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            fetchTopItems(button.dataset.range);
+        });
+    });
+}
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && !document.querySelector('#vanta-bg canvas')) {
