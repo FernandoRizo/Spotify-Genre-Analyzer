@@ -103,6 +103,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (sessionData.service === 'spotify') {
             loadPlaylists('/get-my-playlists', playlistSelect, 'spotify');
             playlistSelect.addEventListener('change', handleSpotifyPlaylistChange);
+            //Se muestra sección de más escuchados
+            const historySection = document.getElementById('history-section');
+            historySection.style.display = 'block';
+            // Función para cargar y mostrar los top items
+            const fetchTopItems = async (timeRange = 'medium_term') => {
+                const artistsList = document.getElementById('top-artists-list');
+                const tracksList = document.getElementById('top-tracks-list');
+                artistsList.innerHTML = '<li>Cargando...</li>';
+                tracksList.innerHTML = '<li>Cargando...</li>';
+
+                try {
+                    // Pedir top artistas
+                    const artistsRes = await fetch(`/api/top-artists?time_range=${timeRange}`);
+                    const artists = await artistsRes.json();
+                    artistsList.innerHTML = artists.map(artist => `<li>${artist.name}</li>`).join('');
+
+                    // Pedir top canciones
+                    const tracksRes = await fetch(`/api/top-tracks?time_range=${timeRange}`);
+                    const tracks = await tracksRes.json();
+                    tracksList.innerHTML = tracks.map(track => `<li>${track.name} - <i>${track.artists[0].name}</i></li>`).join('');
+                } catch (error) {
+                    artistsList.innerHTML = '<li>Error al cargar.</li>';
+                    tracksList.innerHTML = '<li>Error al cargar.</li>';
+                }
+            };
+            const timeRangeButtons = document.querySelectorAll('.time-range-buttons button');
+                timeRangeButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        timeRangeButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        fetchTopItems(button.dataset.range);
+                    });
+                });
+            fetchTopItems();
+
         } else if (sessionData.service === 'youtube') {
             loadPlaylists('/get-my-youtube-playlists', playlistSelect, 'youtube');
             playlistSelect.addEventListener('change', handleYouTubePlaylistChange);
@@ -214,12 +249,12 @@ async function loadPlaylists(url, playlistSelectElement, service) {
         
         playlistSelectElement.innerHTML = '<option value="">-- Elige una playlist --</option>';
 
-        if (service === 'spotify') {
+        /*if (service === 'spotify') {
             const likedOption = document.createElement('option');
             likedOption.value = 'liked';
-            likedOption.textContent = '❤️ Canciones que te gustan';
-            playlistSelectElement.appendChild(likedOption);
-        }
+            //likedOption.textContent = '❤️ Canciones que te gustan';
+            //playlistSelectElement.appendChild(likedOption);
+        }*/
 
         playlists.forEach(playlist => {
             const option = document.createElement('option');

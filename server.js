@@ -9,6 +9,7 @@ const session = require('express-session');
 const querystring = require('querystring');
 const spotifyService = require('./services/spotifyService.js');
 const youtubeService = require('./services/youtubeService.js');
+const { error } = require('console');
 // -------------------------------------------------------------
 
 const app = express();
@@ -241,6 +242,43 @@ app.get('/get-genres', async (req, res) => {
     }
 });
 
+//Obtiene artistas más escuchados
+app.get('/api/top-artists', async (req, res) => {
+  if (!req.session.accessToken) {
+    return res.status(401).json({ error: 'No autenticado con Spotify' });
+  }
+  try {
+    const timeRange = req.query.time_range || 'medium_term';
+    const items = await spotifyService.getUserTopItems(
+      req.session.accessToken, 'artists', timeRange
+    );
+    // Devuelve sólo lo que usa el front
+    res.json(items.map(a => ({ name: a.name })));
+  } catch (e) {
+    console.error('Top artists error:', e.response?.data || e.message);
+    res.status(500).json({ error: 'No se pudo obtener top artistas' });
+  }
+});
+
+//Obtener canciones más escuchadas
+app.get('/api/top-tracks', async (req, res) => {
+  if (!req.session.accessToken) {
+    return res.status(401).json({ error: 'No autenticado con Spotify' });
+  }
+  try {
+    const timeRange = req.query.time_range || 'medium_term';
+    const items = await spotifyService.getUserTopItems(
+      req.session.accessToken, 'tracks', timeRange
+    );
+    res.json(items.map(t => ({
+      name: t.name,
+      artists: t.artists?.map(a => ({ name: a.name })) || []
+    })));
+  } catch (e) {
+    console.error('Top tracks error:', e.response?.data || e.message);
+    res.status(500).json({ error: 'No se pudo obtener top canciones' });
+  }
+});
 // --- INICIAR SERVIDOR ---
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en http://localhost:${PORT}`);

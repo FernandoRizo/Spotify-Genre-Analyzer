@@ -23,6 +23,25 @@
         </div>
 
        <div id="app-view" style="display:none;">
+        <div id="history-section">
+        <hr>
+        <h2>Tu Historial de Escucha</h2>
+        <div class="time-range-buttons">
+            <button data-range="long_term">Desde Siempre</button>
+            <button data-range="medium_term" class="active">Últimos 6 Meses</button>
+            <button data-range="short_term">Últimas 4 Semanas</button>
+        </div>
+        <div class="top-items-container">
+            <div class="top-list">
+                <h3>Top Artistas</h3>
+                <ol id="top-artists-list"></ol>
+            </div>
+            <div class="top-list">
+                <h3>Top Canciones</h3>
+                <ol id="top-tracks-list"></ol>
+            </div>
+        </div>
+    </div>
          <p id="track-count-display" style="min-height: 1.2em; margin-top: 1rem;"></p>
             <div class="header-controls"> 
                 <label id= "select-label" for="playlist-select">Selecciona una de tus playlists para analizar:</label>
