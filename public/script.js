@@ -149,14 +149,14 @@ async function fetchTopItems(timeRange = 'medium_term') {
 
     
     // Lógica para los botones de rango de tiempo
-    const timeRangeButtons = document.querySelectorAll('.time-range-buttons button');
+    /*const timeRangeButtons = document.querySelectorAll('.time-range-buttons button');
     timeRangeButtons.forEach(button => {
         button.addEventListener('click', () => {
             timeRangeButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             fetchTopItems(button.dataset.range);
         });
-    });
+    });*/
 window.addEventListener('pageshow', (e) => {
   if (e.persisted || !document.querySelector('#vanta-bg canvas')) {
     initVanta();
