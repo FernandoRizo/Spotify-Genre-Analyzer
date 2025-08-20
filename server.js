@@ -54,6 +54,7 @@ mongoose.connect(DATABASE_URL)
     .catch(err => console.error("❌ Error al conectar a MongoDB:", err));
 
 
+    //--Middleware--
 app.set('trust proxy', 1);
 
 app.use(session({
@@ -67,12 +68,12 @@ app.use(session({
     maxAge: 7 * 24 * 60 * 60 * 1000
   }
 }));
-//--Middleware--
-app.use(session({
+
+/*app.use(session({
     secret: 'frase_secreta_para_la_sesion_12345',
     resave: false,
     saveUninitialized: true
-}));
+}));*/
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
