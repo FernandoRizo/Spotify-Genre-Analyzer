@@ -94,11 +94,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (sessionData.service === 'spotify') {
             loadPlaylists('/get-my-playlists', playlistSelect, 'spotify');
-            playlistSelect.addEventListener('change', () => handlePlaylistChange(sessionData.service));
+            playlistSelect.addEventListener('change', handleSpotifyPlaylistChange);
             setupHistorySidebar();
         } else if (sessionData.service === 'youtube') {
             loadPlaylists('/get-my-youtube-playlists', playlistSelect, 'youtube');
-            playlistSelect.addEventListener('change', () => handlePlaylistChange(sessionData.service));
+            playlistSelect.addEventListener('change', handleYouTubePlaylistChange);
             document.getElementById('open-history-sidebar-btn').style.display = 'none';
         }
     } else {
