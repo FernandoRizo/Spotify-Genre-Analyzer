@@ -1,180 +1,137 @@
-/* Pega todo este contenido en tu style.css */
+:root{
+  --bg: #eaf2ff;              /* fondo claro por defecto */
+  --fg: #0b1437;              /* texto principal */
+  --link: #0b57d0;
+  --panel-bg: rgba(255,255,255,0.75);
+  --panel-border: rgba(13,71,161,.22);
+  --chip-bg: rgba(13,71,161,.12);
+  --chip-border: rgba(13,71,161,.28);
+  --logout-bg: rgba(13,71,161,.12);
+  --logout-color: #0b1437;
+}
+
+body.dark-mode{
+  --bg: #0b1020;              /* fondo oscuro */
+  --fg: #ffffff;
+  --link: #8be1ff;
+  --panel-bg: rgba(10,25,47,0.70);
+  --panel-border: rgba(255,255,255,0.20);
+  --chip-bg: rgba(29,185,84,.15);
+  --chip-border: rgba(255,255,255,.28);
+  --logout-bg: rgba(10,25,47,.65);
+  --logout-color: #fff;
+}
+
+/* BASE */
 body {
-    font-family: sans-serif;
-    color: white;
-    margin: 0;
-    min-height: 100vh;
-    background: #0b1020; /* Color base por si la animación tarda en cargar */
+  font-family: sans-serif;
+  color: var(--fg);
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+}
+a { color: var(--link); text-decoration: none; }
+main { max-width: 980px; width: 90%; padding: 2.5rem 1.5rem; margin: 0 auto; text-align: center; }
+main > * { position: relative; z-index: 1; }
+h1 { text-shadow: 0 3px 14px rgba(0,0,0,0.38); }
+
+/* FONDOS */
+#vanta-bg{ position: fixed; inset: 0; z-index:-2; }
+#decor-shapes{ position: fixed; inset:0; overflow:hidden; pointer-events:none; z-index:-1; }
+.shape{ position:absolute; opacity:.14; will-change:transform; animation: floatY var(--durY,16s) ease-in-out infinite alternate, spin var(--durR,50s) linear infinite; mix-blend-mode: screen; }
+@keyframes floatY{ from{transform:translateY(-20px) rotate(0)} to{transform:translateY(20px) rotate(15deg)} }
+@keyframes spin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+/* LOGIN VIEW centrado a pantalla */
+#login-view{
+  min-height: calc(100svh - 6rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;  /* 👈 centrado vertical */
+  gap: 1rem;
 }
 
-main {
-    max-width: 980px;
-    width: 90%;
-    padding: 2.5rem 1.5rem;
-    margin: 0 auto;
-    text-align: center;
+/* Botones login */
+.login-buttons{ display:flex; justify-content:center; gap:1rem; margin-top:1rem; }
+.login-button{
+  color:#fff; padding:12px 20px; border:none; border-radius:25px; font-size:16px; font-weight:bold;
+  cursor:pointer; text-decoration:none; transition: background-color .2s, transform .2s;
+  box-shadow: 0 6px 22px rgba(0,0,0,.22);
 }
+.login-button:hover{ transform: scale(1.05); }
+.login-button.spotify{ background:#1DB954; } .login-button.spotify:hover{ background:#1ed760; }
+.login-button.youtube{ background:#FF0000; } .login-button.youtube:hover{ background:#c40202; }
 
-main > * {
-    position: relative;
-    z-index: 1; /* Asegura que el contenido esté sobre el fondo */
-}
-
-h1 {
-   text-shadow: 0 3px 14px rgba(0,0,0,0.38);
-}
-
-a {
-    color: #8be1ff;
-    text-decoration: none;
-}
-.logout-link {
-    text-decoration: underline;
-}
-
-/* --- FONDOS ANIMADOS --- */
-#vanta-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -2; /* Detrás de todo */
-}
-#decor-shapes {
-    position: fixed;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: -1; /* Encima de Vanta, pero detrás del contenido */
-}
-.shape {
-    position: absolute;
-    opacity: 0.14;
-    will-change: transform;
-    animation: floatY var(--durY, 16s) ease-in-out infinite alternate, spin var(--durR, 50s) linear infinite;
-    mix-blend-mode: screen;
-}
-.shape.bubble {
-    width: var(--sz, 120px); height: var(--sz, 120px);
-    border-radius: 999px;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.55), rgba(255,255,255,0) 60%), rgba(255,255,255,.10);
-}
-@keyframes floatY {
-  from { transform: translateY(-20px) rotate(0deg); }
-  to   { transform: translateY(20px) rotate(15deg); }
-}
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-/* --- VISTA DE LOGIN --- */
-.login-buttons {
-    display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;
-}
-.login-button {
-    color: white; padding: 12px 20px; border: none; border-radius: 25px;
-    font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none;
-    transition: background-color 0.2s, transform 0.2s;
-}
-.login-button:hover { transform: scale(1.05); }
-.login-button.spotify { background-color: #1DB954; }
-.login-button.spotify:hover { background-color: #1ed760; }
-.login-button.youtube { background-color: #FF0000; }
-.login-button.youtube:hover { background-color: #c40202; }
+/* CTA feedback con el tema */
 .feedback-link{
-  display:inline-block;
-  margin-top:1.25rem;
-  padding:10px 16px;
-  font-weight:600;
-  color:#fff;                      /* más contraste */
-  background:rgba(13, 71, 161, .55); /* azul translúcido */
-  border:1px solid rgba(255,255,255,.35);
-  border-radius:999px;
-  text-decoration:none;
+  display:inline-block; margin-top:1.1rem; padding:10px 16px; font-weight:600; color:var(--fg);
+  background: var(--chip-bg); border:1px solid var(--chip-border); border-radius:999px; text-decoration:none;
   backdrop-filter: blur(6px);
-  box-shadow:0 8px 24px rgba(0,0,0,.28);
 }
-.feedback-link:hover{
-  background:rgba(29, 185, 84, .75); /* verde Spotify en hover */
-}
+body.dark-mode .feedback-link{ color:#fff; }
+.feedback-link:hover{ filter: brightness(1.05); }
 
-/* --- VISTA DE APP --- */
-.header-controls {
-    display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;
-}
-#chart-layout-container {
-    display: flex; flex-direction: row; gap: 2rem; margin-top: 2rem;
-}
-#chart-wrapper { flex-grow: 1; }
-.chart-container { position: relative; height: 65vh; width: 100%; }
-#legend-container {
-    flex-shrink: 0; width: 250px; max-height: 65vh; overflow-y: auto; text-align: left;
-    padding: 10px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
-    background-color: rgba(10, 25, 47, 0.7); backdrop-filter: blur(10px);
-}
-.legend-item { display: flex; align-items: center; margin-bottom: 8px; font-size: 14px; }
-.legend-color-box { width: 16px; height: 16px; margin-right: 10px; flex-shrink: 0; border-radius: 3px; }
+/* APP VIEW */
+.header-controls{ display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap; }
 
-/* --- SIDEBAR DE HISTORIAL --- */
-#open-history-sidebar-btn {
-    margin-top: 1.5rem; background-color: #555; border-radius: 25px; color: white;
-    border: none; padding: 10px 20px; cursor: pointer;
+/* Cerrar sesión visible siempre */
+.logout-link{
+  padding:8px 14px; border-radius:20px; border:1px solid var(--panel-border);
+  background: var(--logout-bg); color: var(--logout-color)!important; text-decoration:none;
+  box-shadow: 0 3px 12px rgba(0,0,0,.18);
 }
-#history-sidebar {
-    position: fixed; top: 0; right: -400px; width: 350px; height: 100%;
-    background-color: #0b1437; box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
-    padding: 2rem; z-index: 1001; transition: right 0.4s ease-in-out; overflow-y: auto;
-}
-#history-sidebar.visible { right: 0; }
-#close-history-sidebar-btn {
-    position: absolute; top: 15px; left: 15px; background: none; border: none;
-    font-size: 2rem; color: #888; cursor: pointer;
-}
-.time-range-buttons { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; }
-.time-range-buttons button { background: #555; border-radius: 25px; color: white; border: none; padding: 8px 15px; cursor: pointer;}
-.time-range-buttons button.active { background: #1DB954; }
-.top-items-container { display: flex; gap: 2rem; justify-content: space-around; text-align: left; }
-.top-list ol { list-style-position: inside; padding: 0; }
-.top-list li { margin-bottom: 0.5rem; }
+.logout-link:hover{ filter: brightness(1.06); }
 
-/* --- MODAL DE COMENTARIOS --- */
-.modal-overlay {
-    position: fixed; inset: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6);
-    display: none; justify-content: center; align-items: center; z-index: 1000;
+/* Chart + leyenda */
+#chart-layout-container{ display:flex; flex-direction:row; gap:2rem; margin-top:2rem; }
+#chart-wrapper{ flex-grow:1; }
+.chart-container{ position:relative; height:65vh; width:100%; }
+#legend-container{
+  flex-shrink:0; width:250px; max-height:65vh; overflow-y:auto; text-align:left;
+  padding:10px; border:1px solid var(--panel-border); border-radius:8px;
+  background: var(--panel-bg); backdrop-filter: blur(10px);
 }
-.modal-overlay.visible { display: flex; }
-.modal-content {
-    background: #1e1e1e; padding: 2rem; border-radius: 8px; width: 90%; max-width: 500px;
-    position: relative; max-height: 80vh; display: flex; flex-direction: column;
-}
-#comments-list {
-    flex-grow: 1; overflow-y: auto; margin-bottom: 1rem; border-top: 1px solid #444;
-    border-bottom: 1px solid #444; padding: 10px 0;
-}
-.comment-item { padding: 10px; border-bottom: 1px solid #3a3a3a; }
-.comment-item strong { color: #1DB954; }
-#comment-form input, #comment-form textarea {
-    width: calc(100% - 20px); padding: 10px; margin-bottom: 10px;
-    background-color: #3a3a3a; border: 1px solid #555; color: #eee; border-radius: 4px;
-}
-#comment-form button { width: 100%; padding: 12px; border-radius: 8px; background-color: #1DB954; color: white; border: none; }
+.legend-item{ display:flex; align-items:center; margin-bottom:8px; font-size:14px; }
+.legend-color-box{ width:16px; height:16px; margin-right:10px; flex-shrink:0; border-radius:3px; }
 
-/*Estilo para el top género*/
-#top-genre-widget {
-    background: rgba(29, 185, 84, 0.2); /* Verde Spotify translúcido */
-    border: 1px solid #1DB954;
-    border-radius: 12px;
-    padding: 1rem 1.5rem;
-    margin: 2rem auto;
-    max-width: 500px;
+/* Sidebar historial */
+#open-history-sidebar-btn{ margin-top:1.5rem; background:#555; border-radius:25px; color:#fff; border:none; padding:10px 20px; cursor:pointer; }
+#history-sidebar{
+  position:fixed; top:0; right:-400px; width:350px; height:100%;
+  background: var(--bg); box-shadow:-4px 0 15px rgba(0,0,0,.2);
+  padding:2rem; z-index:1001; transition:right .4s ease-in-out; overflow-y:auto;
 }
-#top-genre-widget p {
-    margin: 0;
-    font-size: 0.9rem;
-    opacity: 0.8;
+#history-sidebar.visible{ right:0; }
+#close-history-sidebar-btn{ position:absolute; top:15px; left:15px; background:none; border:none; font-size:2rem; color:#888; cursor:pointer; }
+.time-range-buttons{ display:flex; justify-content:center; gap:.5rem; margin-bottom:1rem; }
+.time-range-buttons button{ background:#555; border-radius:25px; color:#fff; border:none; padding:8px 15px; cursor:pointer; }
+.time-range-buttons button.active{ background:#1DB954; }
+.top-items-container{ display:flex; gap:2rem; justify-content:space-around; text-align:left; }
+.top-list ol{ list-style-position:inside; padding:0; } .top-list li{ margin-bottom:.5rem; }
+
+/* Modal */
+.modal-overlay{ position:fixed; inset:0; width:100%; height:100%; background:rgba(0,0,0,.6); display:none; justify-content:center; align-items:center; z-index:1000; }
+.modal-overlay.visible{ display:flex; }
+.modal-content{
+  background: var(--panel-bg); color: var(--fg);
+  padding:2rem; border-radius:8px; width:90%; max-width:500px; position:relative; max-height:80vh; display:flex; flex-direction:column;
+  border:1px solid var(--panel-border);
 }
-#top-genre-widget h2 {
-    margin: 0.25rem 0 0;
-    font-size: 2.5rem;
-    color: #1DB954;
-    text-transform: capitalize;
+#comments-list{ flex-grow:1; overflow-y:auto; margin-bottom:1rem; border-top:1px solid var(--panel-border); border-bottom:1px solid var(--panel-border); padding:10px 0; }
+.comment-item{ padding:10px; border-bottom:1px solid var(--panel-border); }
+.comment-item strong{ color:#1DB954; }
+#comment-form input, #comment-form textarea{
+  width:calc(100% - 20px); padding:10px; margin-bottom:10px; background: rgba(0,0,0,.05);
+  border:1px solid var(--panel-border); color: var(--fg); border-radius:4px;
 }
+#comment-form button{ width:100%; padding:12px; border-radius:8px; background:#1DB954; color:#fff; border:none; }
+
+/* Widget género principal */
+#top-genre-widget{
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  border-radius: 12px; padding: 1rem 1.5rem; margin: 2rem auto; max-width: 500px;
+}
+#top-genre-widget p{ margin:0; font-size:.9rem; opacity:.85; }
+#top-genre-widget h2{ margin:.25rem 0 0; font-size:2.5rem; color:#1DB954; text-transform:capitalize; }
