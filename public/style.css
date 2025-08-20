@@ -80,8 +80,21 @@ a {
 .login-button.spotify:hover { background-color: #1ed760; }
 .login-button.youtube { background-color: #FF0000; }
 .login-button.youtube:hover { background-color: #c40202; }
-.feedback-link {
-    display: block; margin-top: 2rem; color: #ccc; text-decoration: underline; cursor: pointer;
+.feedback-link{
+  display:inline-block;
+  margin-top:1.25rem;
+  padding:10px 16px;
+  font-weight:600;
+  color:#fff;                      /* más contraste */
+  background:rgba(13, 71, 161, .55); /* azul translúcido */
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:999px;
+  text-decoration:none;
+  backdrop-filter: blur(6px);
+  box-shadow:0 8px 24px rgba(0,0,0,.28);
+}
+.feedback-link:hover{
+  background:rgba(29, 185, 84, .75); /* verde Spotify en hover */
 }
 
 /* --- VISTA DE APP --- */
