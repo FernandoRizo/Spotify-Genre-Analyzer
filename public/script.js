@@ -95,6 +95,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (sessionData.service === 'spotify') {
             loadPlaylists('/get-my-playlists', playlistSelect, 'spotify');
             playlistSelect.addEventListener('change', handleSpotifyPlaylistChange);
+            const topGenreWidget = document.getElementById('top-genre-widget');
+        topGenreWidget.style.display = 'block'; // Muestra el widget
+
+        const fetchTopGenre = async () => {
+            const topGenreResult = document.getElementById('top-genre-result');
+            try {
+                const response = await fetch('/api/top-genre');
+                const data = await response.json();
+                topGenreResult.textContent = data.topGenre;
+            } catch (error) {
+                topGenreResult.textContent = 'Error';
+            }
+        };
+            fetchTopGenre();
             setupHistorySidebar();
         } else if (sessionData.service === 'youtube') {
             loadPlaylists('/get-my-youtube-playlists', playlistSelect, 'youtube');
@@ -109,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupFeedbackModal();
 });
 
-
+// ----------------------------------------------------------------
 
 // --- DEFINICIÓN DE FUNCIONES ---
 

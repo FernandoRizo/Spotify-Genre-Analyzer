@@ -292,6 +292,21 @@ app.get('/api/top-tracks', async (req, res) => {
     res.status(500).json({ error: 'No se pudo obtener top canciones' });
   }
 });
+
+//Obtener género más escuchado
+app.get('/api/top-genre', async (req, res) =>{
+    if(!req.session.accessToken){
+        return res.status(401).json({error: 'No autenticado con Spotify'});
+    }
+        try{
+            const topGenre = await spotifyService.getTopGenre(req.session.accessToken);
+            res.json({ topGenre: topGenre});
+        }catch(e){
+            console.error('Top Genre error:', e.response?.data || e.message);
+            res.status(500).json({error: 'No se pudo obtener top género'});
+        }
+    
+});
 // --- INICIAR SERVIDOR ---
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en http://localhost:${PORT}`);
