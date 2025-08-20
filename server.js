@@ -1,5 +1,6 @@
 require('dotenv').config();
 // ----------- IMPORTS ---------------------------------------
+const cookieSession = require('cookie-session');
 const express = require('express');
 const mongoose = require('mongoose');
 const axios = require('axios');
@@ -57,16 +58,13 @@ mongoose.connect(DATABASE_URL)
     //--Middleware--
 app.set('trust proxy', 1);
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev_secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production', // true en Vercel
-    maxAge: 7 * 24 * 60 * 60 * 1000
-  }
+app.use(cookieSession({
+  name: 'sess',
+  keys: [process.env.SESSION_SECRET || 'dev_secret'],
+  sameSite: 'lax',
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
 }));
 
 /*app.use(session({
@@ -174,7 +172,7 @@ app.get('/callback/youtube', async (req, res) => {
 });
 
 app.get('/logout', (req, res) => {
-    req.session.destroy();
+    req.session = null;
     res.redirect('/');
 });
 
