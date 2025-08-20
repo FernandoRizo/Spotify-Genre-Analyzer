@@ -157,3 +157,24 @@ a {
     background-color: #3a3a3a; border: 1px solid #555; color: #eee; border-radius: 4px;
 }
 #comment-form button { width: 100%; padding: 12px; border-radius: 8px; background-color: #1DB954; color: white; border: none; }
+
+/*Estilo para el top género*/
+#top-genre-widget {
+    background: rgba(29, 185, 84, 0.2); /* Verde Spotify translúcido */
+    border: 1px solid #1DB954;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin: 2rem auto;
+    max-width: 500px;
+}
+#top-genre-widget p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+#top-genre-widget h2 {
+    margin: 0.25rem 0 0;
+    font-size: 2.5rem;
+    color: #1DB954;
+    text-transform: capitalize;
+}

@@ -75,6 +75,30 @@ const getPlaylistGenres = async (accessToken, playlistId) => {
     };
 };
 
+ const getTopGenre = async (accessToken) =>{
+
+        const topArtists = await getUserTopItems(accessToken,'artists','short_term');
+        if(!topArtists || topArtists.length === 0 ){
+            return 'No disponible';
+        }
+        const genreCounts = {};
+        topArtists.forEach(artist =>{
+            artist.genres.forEach(genre => {
+                genreCounts[genre] = (genreCounts[genre] || 0) + 1;
+            });
+        });
+
+        let topGnere = 'Nunguno';
+        let maxCount = 0;
+        
+        for(const genre in genreCounts){
+            if(genreCounts[genre]>maxCount){
+                maxCount = genreCounts[genre];
+                topGnere = genre;
+            }
+        }
+        return topGnere;
+    };
 //
 const getUserTopItems = async(accessToken, type, timeRange='long_term') =>{
     const response = await axios.get(`https://api.spotify.com/v1/me/top/${type}`,{
@@ -122,7 +146,7 @@ const analyzeTracks = async (spotifyToken, tracks) => {
         }
     }
     
-    // --- LÓGICA FALTANTE AÑADIDA AQUÍ ---
+
     if (artistIds.size === 0) {
         return { genreCounts: {}, totalTracks: tracks.length };
     }
@@ -156,5 +180,6 @@ module.exports = {
     getPlaylistGenres,
     getAppSpotifyToken,
     analyzeTracks,
-    getUserTopItems
+    getUserTopItems,
+    getTopGenre
 };
