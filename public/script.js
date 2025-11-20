@@ -76,7 +76,7 @@ function spawnDecorShapes(count = (window.innerWidth < 720 ? 8 : 12)) {
 
 // --- LÓGICA PRINCIPAL DE LA PÁGINA ---
 document.addEventListener('DOMContentLoaded', async () => {
-    initVanta();
+    //initVanta();
     spawnDecorShapes();
 
     const loginView = document.getElementById('login-view');

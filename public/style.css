@@ -49,11 +49,21 @@ body.service-youtube{
 .login-button.spotify{ background: var(--spotify); }
 .login-button.youtube{ background: var(--youtube); }
 
+.panel {
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  backdrop-filter: blur(6px);
+}
+
 /* Paneles “glass” coherentes con el modo */
 #legend-container, .modal-content{
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  backdrop-filter: blur(6px);
 }
 
 /* Botón de tema con aro */
@@ -146,12 +156,11 @@ body.dark-mode{
 }
 
 /* BASE */
-body {
-  font-family: sans-serif;
-  color: var(--fg);
-  margin: 0;
-  min-height: 100vh;
-  background: var(--bg);
+body{
+  background:
+    radial-gradient(1000px 800px at 10% -10%, rgba(33,212,253,.15), transparent),
+    radial-gradient(900px 700px at 110% 0%, rgba(124,92,255,.12), transparent),
+    var(--bg);
 }
 a { color: var(--link); text-decoration: none; }
 main { max-width: 980px; width: 90%; padding: 2.5rem 1.5rem; margin: 0 auto; text-align: center; }
