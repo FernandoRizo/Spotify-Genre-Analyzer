@@ -6,6 +6,7 @@
 // --- VARIABLES GLOBALES ---
 let myChart; // Variable para la instancia del gráfico
 let vantaEffect = null;
+const ENABLE_VANTA = false;
 
 function getVantaColor() {
   // elige un color distinto para modo oscuro si quieres
@@ -23,24 +24,30 @@ function vantaPalette() {
   };
 }
 function initVanta() {
- if (vantaEffect) {
-    try { vantaEffect.destroy(); } catch {}
-    vantaEffect = null;
-  }
-  const el = document.getElementById('vanta-bg');
-  if (!el || !window.VANTA || !VANTA.WAVES) return;
 
-  const p = vantaPalette();
-  vantaEffect = VANTA.WAVES({
-    el: "#vanta-bg",
-    color: p.color,
-    waveHeight: p.waveHeight,
-    waveSpeed: p.waveSpeed,
-    shininess: p.shininess,
-    zoom: p.zoom,
-    backgroundAlpha: 0.0 // 👈 canvas transparente (deja ver el degradado CSS)
-  });
+    if (!ENABLE_VANTA){
+         if (vantaEffect) { try { vantaEffect.destroy(); } catch {} vantaEffect = null; }
+    const el = document.getElementById('vanta-bg');
+    if (el) el.style.display = 'none';
+    return;
+    }
+
+    if (vantaEffect) { try { vantaEffect.destroy(); } catch {} vantaEffect = null; }
+    const el = document.getElementById('vanta-bg');
+    if (!el || !window.VANTA || !VANTA.WAVES) return;
+
+    const p = vantaPalette();
+    vantaEffect = VANTA.WAVES({
+        el: "#vanta-bg",
+        color: p.color,
+        waveHeight: p.waveHeight,
+        waveSpeed: p.waveSpeed,
+        shininess: p.shininess,
+        zoom: p.zoom,
+        backgroundAlpha: 0.0
+    });
 }
+
 
 function spawnDecorShapes(count = (window.innerWidth < 720 ? 8 : 12)) {
   const container = document.getElementById('decor-shapes');
@@ -76,7 +83,7 @@ function spawnDecorShapes(count = (window.innerWidth < 720 ? 8 : 12)) {
 
 // --- LÓGICA PRINCIPAL DE LA PÁGINA ---
 document.addEventListener('DOMContentLoaded', async () => {
-    //initVanta();
+    initVanta();
     spawnDecorShapes();
 
     const loginView = document.getElementById('login-view');
