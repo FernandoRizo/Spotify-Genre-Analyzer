@@ -230,7 +230,7 @@ app.get('/get-youtube-playlist-items', async (req, res) => {
 app.post('/analyze-youtube-playlist', async (req, res) => {
     const { tracks } = req.body;
     try {
-        // Ahora le pasamos las credenciales a la función
+        
         const spotifyToken = await spotifyService.getAppSpotifyToken(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET);
 
         const analysisResults = await spotifyService.analyzeTracks(spotifyToken, tracks);
