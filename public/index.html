@@ -6,24 +6,44 @@
     <title>Analizador de Géneros</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js"></script>-->
 </head>
 <body>
-    <div id="vanta-bg"></div>
-    <div id="decor-shapes"></div>
+    <!--<div id="vanta-bg"></div>
+    <div id="decor-shapes"></div>-->
 
     <main>
         <h1 id="main-title">Analizador de Géneros para Playlists</h1>
 
         <div id="login-view">
-            <p>Elige una plataforma para iniciar sesión y analizar tus playlists.</p>
-            <div class="login-buttons">
-                <a href="/login" class="login-button spotify">Iniciar Sesión con Spotify</a>
-                <a href="/login/youtube" class="login-button youtube">Iniciar Sesión con YouTube</a>
-            </div>
-            <a href="#" id="open-feedback-btn" class="feedback-link">¡Sé parte del proceso!</a>
+  <h2 style="margin:0 0 10px">Elige una plataforma</h2>
+
+    <div class="provider-grid">
+        <!-- Spotify -->
+        <article class="provider-card spotify">
+        <div class="badge-circle">
+        
+            <span>🎧</span>
         </div>
+        <h3>Spotify</h3>
+        <p>Conecta tu cuenta y analiza tus playlists, géneros, artistas y canciones.</p>
+        <a href="/login" class="login-button spotify">Iniciar con Spotify</a>
+        </article>
+
+        <!-- YouTube Music -->
+        <article class="provider-card youtube">
+        <div class="badge-circle">
+            <span>▶️</span>
+        </div>
+        <h3>YouTube Music</h3>
+        <p>Conecta tu cuenta para analizar tus playlists y su distribución de géneros.</p>
+        <a href="/login/youtube" class="login-button youtube">Iniciar con YouTube</a>
+        </article>
+    </div>
+
+  <a href="#" id="open-feedback-btn" class="feedback-link">¡Sé parte del proceso!</a>
+</div>
 
         <div id="app-view" style="display:none;">
             <div class="header-controls">
