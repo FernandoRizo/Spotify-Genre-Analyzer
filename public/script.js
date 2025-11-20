@@ -389,17 +389,23 @@ async function handleYouTubePlaylistChange() {
 }
 
 function updateUIText(service) {
-    const mainTitle = document.getElementById('main-title');
-    const selectLabel = document.getElementById('select-label');
+  const mainTitle = document.getElementById('main-title');
+  const selectLabel = document.getElementById('select-label');
 
-    if (service === 'spotify') {
-        mainTitle.textContent = 'Analizador de Géneros para Playlists de Spotify';
-        selectLabel.textContent = 'Selecciona una de tus playlists de Spotify:';
-    } else if (service === 'youtube') {
-        mainTitle.textContent = 'Analizador de Géneros para Playlists de YouTube';
-        selectLabel.textContent = 'Selecciona una de tus playlists de YouTube:';
-    }
+  // limpia marcas previas
+  document.body.classList.remove('service-spotify', 'service-youtube');
+
+  if (service === 'spotify') {
+      document.body.classList.add('service-spotify');
+      mainTitle.textContent = 'Analizador de Géneros para Playlists de Spotify';
+      selectLabel.textContent = 'Selecciona una de tus playlists de Spotify:';
+  } else if (service === 'youtube') {
+      document.body.classList.add('service-youtube');
+      mainTitle.textContent = 'Analizador de Géneros para Playlists de YouTube';
+      selectLabel.textContent = 'Selecciona una de tus playlists de YouTube:';
+  }
 }
+
 
 function setupThemeToggle(themeToggleButton) {
     if (localStorage.getItem('theme') === 'dark') {
